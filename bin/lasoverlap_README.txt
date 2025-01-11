@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
  
   lasoverlap:
 
@@ -55,16 +57,13 @@
   (x/y+0.66*step) (x+0.33*step/y+0.66*step) (x+0.66*step/y+0.66*step)
   and thereby "washes out" hard boundaries.
 
-  Please license from martin.isenburg@rapidlasso.com to use lasoverlap
+  Please license from info@rapidlasso.de to use lasoverlap
   commercially.
 
   For updates check the website or join the LAStools mailing list.
 
   http://lastools.org/
   http://groups.google.com/group/lastools/
-  http://twitter.com/lastools/
-  http://facebook.com/lastools/
-  http://linkedin.com/groups?gid=4408378
 
   Martin @lastools
  
@@ -165,7 +164,7 @@ overview of all tool-specific switches:
 -min_diff 0.1          : map differences between -0.1 and +0.1 to white
 -max_diff 0.2          : map differences below -0.2 or above +0.2 to saturated blue or red
 -bands 0.1 0.2 0.4     : map absolute differences up to 0.1 to white, 0.2 to blue, 0.4 to green, and above to red 
--color_bands 0.1 0x00..: see long explanation above
+-color_bands 0.1 0x00.. : see long explanation above
 -gray                  : map values to gray values instead of colors
 -false                 : map values to colors
 -values                : do not map values to gray or to color tones but output actual difference and overlap values
@@ -466,7 +465,7 @@ Supported Raster Outputs
   -odir C:\data\hillshade (specify output directory)
   -odix _small (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-LAStools (by martin@rapidlasso.com) version 190812 (academic)
+LAStools (by info@rapidlasso.de) version 190812 (academic)
 usage:
 lasoverlap -i tile.laz -step 1 -max_diff 0.25
 lasoverlap -i tile.las -step 3 -values
@@ -480,4 +479,4 @@ lasoverlap -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let me (info@rapidlasso.de) know

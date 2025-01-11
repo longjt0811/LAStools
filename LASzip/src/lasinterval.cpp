@@ -9,15 +9,15 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2011-2015, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2022, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
-    terms of the GNU Lesser General Licence as published by the Free Software
-    Foundation. See the LICENSE.txt file for more information.
+    terms of the Apache Public License 2.0 published by the Apache Software
+    Foundation. See the COPYING file for more information.
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
     implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -30,6 +30,7 @@
 */
 #include "lasinterval.hpp"
 #include "laszip.hpp"
+#include "lasmessage.hpp"
 
 #include "bytestreamin.hpp"
 #include "bytestreamout.hpp"
@@ -37,42 +38,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include <cassert>
 
 #include <map>
 #include <set>
-using namespace std;
 
-#ifdef UNORDERED
-// Figure out whether <unordered_map> is in tr1
-#  ifdef __has_include
-#    if __has_include(<unordered_map>)
-#     include <unordered_map>
-      using namespace std;
-#     define UNORDERED_FOUND
-#    endif
-#  endif
-#  ifdef HAVE_UNORDERED_MAP
-#     include <unordered_map>
-      using namespace std;
-#  elif defined(UNORDERED_FOUND)
-#    include <tr1/unordered_map>
-    using namespace std;
-    using namespace tr1;
-#  endif
-typedef unordered_map<I32, LASintervalStartCell*> my_cell_hash;
-#elif defined(LZ_WIN32_VC6)
-#include <hash_map>
-using namespace std;
-typedef hash_map<I32, LASintervalStartCell*> my_cell_hash;
-#else
 #include <unordered_map>
-using namespace std;
-typedef unordered_map<I32, LASintervalStartCell*> my_cell_hash;
-#endif
 
-typedef multimap<U32, LASintervalCell*> my_cell_map;
-typedef set<LASintervalStartCell*> my_cell_set;
+typedef std::unordered_map<I32, LASintervalStartCell*> my_cell_hash;
+
+typedef std::multimap<U32, LASintervalCell*> my_cell_map;
+typedef std::set<LASintervalStartCell*> my_cell_set;
 
 LASintervalCell::LASintervalCell()
 {
@@ -206,9 +182,9 @@ BOOL LASinterval::merge_cells(const U32 num_indices, const I32* indices, const I
 }
 
 // merge adjacent intervals with small gaps in cells to reduce total interval number to maximum
-void LASinterval::merge_intervals(U32 maximum_intervals, const BOOL verbose)
+void LASinterval::merge_intervals(U32 maximum_intervals)
 {
-  U32 diff;
+  U32 diff = 0;
   LASintervalCell* cell;
   LASintervalCell* delete_cell;
 
@@ -242,17 +218,14 @@ void LASinterval::merge_intervals(U32 maximum_intervals, const BOOL verbose)
   // maybe nothing to do
   if (map.size() <= maximum_intervals)
   {
-    if (verbose)
+    if (map.size() == 0)
     {
-      if (map.size() == 0)
-      {
-        fprintf(stderr,"maximum_intervals: %u number of interval gaps: 0 \n", maximum_intervals);
-      }
-      else
-      {
-        diff = (*(map.begin())).first;
-        fprintf(stderr,"maximum_intervals: %u number of interval gaps: %u next largest interval gap %u\n", maximum_intervals, (U32)map.size(), diff);
-      }
+      LASMessage(LAS_VERBOSE, "maximum_intervals: %u number of interval gaps: 0 ", maximum_intervals);
+    }
+    else
+    {
+      diff = (*(map.begin())).first;
+      LASMessage(LAS_VERBOSE,"maximum_intervals: %u number of interval gaps: %u next largest interval gap %u", maximum_intervals, (U32)map.size(), diff);
     }
     return;
   }
@@ -273,9 +246,12 @@ void LASinterval::merge_intervals(U32 maximum_intervals, const BOOL verbose)
     }
     else
     {
+#pragma warning(push)
+#pragma warning(disable : 28182)
       delete_cell = cell->next;
       cell->end = delete_cell->end;
       cell->next = delete_cell->next;
+#pragma warning(pop)
       if (cell->next)
       {
         map.insert(my_cell_map::value_type(cell->next->start - cell->end - 1, cell));
@@ -301,7 +277,7 @@ void LASinterval::merge_intervals(U32 maximum_intervals, const BOOL verbose)
     }
     map_element++;
   }
-  if (verbose) fprintf(stderr,"largest interval gap increased to %u\n", diff);
+  LASMessage(LAS_VERBOSE, "largest interval gap increased to %u", diff);
 
   // update totals
 
@@ -436,6 +412,8 @@ BOOL LASinterval::merge(const BOOL erase)
     LASintervalCell* cell;
     my_cell_map map;
     my_cell_set::iterator set_element = ((my_cell_set*)cells_to_merge)->begin();
+#pragma warning(push)
+#pragma warning(disable : 6011)
     while (true)
     {
       if (set_element == ((my_cell_set*)cells_to_merge)->end()) break;
@@ -448,6 +426,7 @@ BOOL LASinterval::merge(const BOOL erase)
       }
       set_element++;
     }
+#pragma warning(pop)
     // initialize merged_cells with first interval
     my_cell_map::iterator map_element = map.begin();
     cell = (*map_element).second;
@@ -533,6 +512,11 @@ LASinterval::LASinterval(const U32 threshold)
   current_cell = 0;
   merged_cells = 0;
   merged_cells_temporary = FALSE;
+  end = 0;
+  full = 0;
+  index = 0;
+  start = 0;
+  total = 0;
 }
 
 LASinterval::~LASinterval()
@@ -578,25 +562,25 @@ BOOL LASinterval::read(ByteStreamIn* stream)
   char signature[4];
   try { stream->getBytes((U8*)signature, 4); } catch (...)
   {
-    fprintf(stderr,"ERROR (LASinterval): reading signature\n");
+    laserror("(LASinterval): reading signature");
     return FALSE;
   }
   if (strncmp(signature, "LASV", 4) != 0)
   {
-    fprintf(stderr,"ERROR (LASinterval): wrong signature %4s instead of 'LASV'\n", signature);
+    laserror("(LASinterval): wrong signature %4s instead of 'LASV'", signature);
     return FALSE;
   }
   U32 version;
   try { stream->get32bitsLE((U8*)&version); } catch (...)
   {
-    fprintf(stderr,"ERROR (LASinterval): reading version\n");
+    laserror("(LASinterval): reading version");
     return FALSE;
   }
   // read number of cells
   U32 number_cells;
   try { stream->get32bitsLE((U8*)&number_cells); } catch (...)
   {
-    fprintf(stderr,"ERROR (LASinterval): reading number of cells\n");
+    laserror("(LASinterval): reading number of cells");
     return FALSE;
   }
   // loop over all cells
@@ -606,7 +590,7 @@ BOOL LASinterval::read(ByteStreamIn* stream)
     I32 cell_index;
     try { stream->get32bitsLE((U8*)&cell_index); } catch (...)
     {
-      fprintf(stderr,"ERROR (LASinterval): reading cell index\n");
+      laserror("(LASinterval): reading cell index");
       return FALSE;
     }
     // create cell and insert into hash
@@ -617,14 +601,14 @@ BOOL LASinterval::read(ByteStreamIn* stream)
     U32 number_intervals;
     try { stream->get32bitsLE((U8*)&number_intervals); } catch (...)
     {
-      fprintf(stderr,"ERROR (LASinterval): reading number of intervals in cell\n");
+      laserror("(LASinterval): reading number of intervals in cell");
       return FALSE;
     }
     // read number of points in cell
     U32 number_points;
     try { stream->get32bitsLE((U8*)&number_points); } catch (...)
     {
-      fprintf(stderr,"ERROR (LASinterval): reading number of points in cell\n");
+      laserror("(LASinterval): reading number of points in cell");
       return FALSE;
     }
     start_cell->full = number_points;
@@ -634,13 +618,13 @@ BOOL LASinterval::read(ByteStreamIn* stream)
       // read start of interval
       try { stream->get32bitsLE((U8*)&(cell->start)); } catch (...)
       {
-        fprintf(stderr,"ERROR (LASinterval): reading start %d of interval\n", cell->start);
+        laserror("(LASinterval): reading start %d of interval", cell->start);
         return FALSE;
       }
       // read end of interval
       try { stream->get32bitsLE((U8*)&(cell->end)); } catch (...)
       {
-        fprintf(stderr,"ERROR (LASinterval): reading end %d of interval\n", cell->end);
+        laserror("(LASinterval): reading end %d of interval", cell->end);
         return FALSE;
       }
       start_cell->total += (cell->end - cell->start + 1);
@@ -661,20 +645,20 @@ BOOL LASinterval::write(ByteStreamOut* stream) const
 {
   if (!stream->putBytes((const U8*)"LASV", 4))
   {
-    fprintf(stderr,"ERROR (LASinterval): writing signature\n");
+    laserror("(LASinterval): writing signature");
     return FALSE;
   }
   U32 version = 0;
   if (!stream->put32bitsLE((const U8*)&version))
   {
-    fprintf(stderr,"ERROR (LASinterval): writing version\n");
+    laserror("(LASinterval): writing version");
     return FALSE;
   }
   // write number of cells
   U32 number_cells = (U32)((my_cell_hash*)cells)->size();
   if (!stream->put32bitsLE((const U8*)&number_cells))
   {
-    fprintf(stderr,"ERROR (LASinterval): writing number of cells %d\n", number_cells);
+    laserror("(LASinterval): writing number of cells %d", number_cells);
     return FALSE;
   }
   // loop over all cells
@@ -682,9 +666,12 @@ BOOL LASinterval::write(ByteStreamOut* stream) const
   while (hash_element != ((my_cell_hash*)cells)->end())
   {
     LASintervalCell* cell = (*hash_element).second;
+#pragma warning(push)
+#pragma warning(disable : 6011)
     // count number of intervals and points in cell
     U32 number_intervals = 0;
     U32 number_points = ((LASintervalStartCell*)cell)->full;
+#pragma warning(pop)
     while (cell)
     {
       number_intervals++;
@@ -694,19 +681,19 @@ BOOL LASinterval::write(ByteStreamOut* stream) const
     I32 cell_index = (*hash_element).first;
     if (!stream->put32bitsLE((const U8*)&cell_index))
     {
-      fprintf(stderr,"ERROR (LASinterval): writing cell index %d\n", cell_index);
+      laserror("(LASinterval): writing cell index %d", cell_index);
       return FALSE;
     }
     // write number of intervals in cell
     if (!stream->put32bitsLE((const U8*)&number_intervals))
     {
-      fprintf(stderr,"ERROR (LASinterval): writing number of intervals %d in cell\n", number_intervals);
+      laserror("(LASinterval): writing number of intervals %d in cell", number_intervals);
       return FALSE;
     }
     // write number of points in cell
     if (!stream->put32bitsLE((const U8*)&number_points))
     {
-      fprintf(stderr,"ERROR (LASinterval): writing number of points %d in cell\n", number_points);
+      laserror("(LASinterval): writing number of points %d in cell", number_points);
       return FALSE;
     }
     // write intervals
@@ -716,13 +703,13 @@ BOOL LASinterval::write(ByteStreamOut* stream) const
       // write start of interval
       if (!stream->put32bitsLE((const U8*)&(cell->start)))
       {
-        fprintf(stderr,"ERROR (LASinterval): writing start %d of interval\n", cell->start);
+        laserror("(LASinterval): writing start %d of interval", cell->start);
         return FALSE;
       }
       // write end of interval
       if (!stream->put32bitsLE((const U8*)&(cell->end)))
       {
-        fprintf(stderr,"ERROR (LASinterval): writing end %d of interval\n", cell->end);
+        laserror("(LASinterval): writing end %d of interval", cell->end);
         return FALSE;
       }
       cell = cell->next;

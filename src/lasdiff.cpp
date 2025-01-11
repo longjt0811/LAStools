@@ -11,11 +11,11 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-17, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-17, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -48,37 +48,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "lastool.hpp"
 
-void usage(bool error=false, bool wait=false)
+class LasTool_lasdiff : public LasTool
 {
-  fprintf(stderr,"usage:\n");
-  fprintf(stderr,"lasdiff lidar.las\n");
-  fprintf(stderr,"lasdiff lidar1.las lidar1.laz\n");
-  fprintf(stderr,"lasdiff *.las\n");
-  fprintf(stderr,"lasdiff lidar1.las lidar2.las -shutup 20\n");
-  fprintf(stderr,"lasdiff lidar1.txt lidar2.txt -iparse xyzti\n");
-  fprintf(stderr,"lasdiff lidar1.las lidar1.laz\n");
-  fprintf(stderr,"lasdiff lidar1.las lidar1.laz -random_seeks\n");
-  fprintf(stderr,"lasdiff -i lidar1.las -i lidar2.las -o diff.las\n");
-  fprintf(stderr,"lasdiff -wildcards folder1 folder2\n");
-  fprintf(stderr,"lasdiff -h\n");
-  if (wait)
+private:
+public:
+  void usage() override
   {
-    fprintf(stderr,"<press ENTER>\n");
-    getc(stdin);
-  }
-  exit(error);
-}
-
-static void byebye(bool error=false, bool wait=false)
-{
-  if (wait)
-  {
-    fprintf(stderr,"<press ENTER>\n");
-    getc(stdin);
-  }
-  exit(error);
-}
+    fprintf(stderr, "usage:\n");
+    fprintf(stderr, "lasdiff lidar1.las lidar1.laz\n");
+    fprintf(stderr, "lasdiff *.las\n");
+    fprintf(stderr, "lasdiff lidar1.las lidar2.las -shutup 20\n");
+    fprintf(stderr, "lasdiff lidar1.txt lidar2.txt -iparse xyzti\n");
+    fprintf(stderr, "lasdiff lidar1.las lidar1.laz\n");
+    fprintf(stderr, "lasdiff lidar1.las lidar1.laz -random_seeks\n");
+    fprintf(stderr, "lasdiff -i lidar1.las -i lidar2.las -o diff.las\n");
+    fprintf(stderr, "lasdiff -wildcards folder1 folder2\n");
+    fprintf(stderr, "lasdiff -h\n");
+  };
+};
 
 static int lidardouble2string(char* string, double value0, double value1)
 {
@@ -133,24 +122,9 @@ static int check_header(LASreader* lasreader1, LASreader* lasreader2)
       fprintf(stderr, "  different reserved (global_encoding): %d %d\n", lasheader1->global_encoding, lasheader2->global_encoding);
       different_header++;
     }
-    if (lasheader1->project_ID_GUID_data_1 != lasheader2->project_ID_GUID_data_1)
+    if (lasheader1->get_GUID() != lasheader2->get_GUID())
     {
-      fprintf(stderr, "  different project_ID_GUID_data_1: %d %d\n", lasheader1->project_ID_GUID_data_1, lasheader2->project_ID_GUID_data_1);
-      different_header++;
-    }
-    if (lasheader1->project_ID_GUID_data_2 != lasheader2->project_ID_GUID_data_2)
-    {
-      fprintf(stderr, "  different project_ID_GUID_data_2: %d %d\n", lasheader1->project_ID_GUID_data_2, lasheader2->project_ID_GUID_data_2);
-      different_header++;
-    }
-    if (lasheader1->project_ID_GUID_data_3 != lasheader2->project_ID_GUID_data_3)
-    {
-      fprintf(stderr, "  different project_ID_GUID_data_3: %d %d\n", lasheader1->project_ID_GUID_data_3, lasheader2->project_ID_GUID_data_3);
-      different_header++;
-    }
-    if (strncmp((const char*)lasheader1->project_ID_GUID_data_4, (const char*)lasheader2->project_ID_GUID_data_4, 8))
-    {
-      fprintf(stderr, "  different project_ID_GUID_data_4: '%.8s' '%.8s'\n", lasheader1->project_ID_GUID_data_4, lasheader2->project_ID_GUID_data_4);
+      fprintf(stderr, "  different project_ID_GUID: %s %s\n", lasheader1->get_GUID().c_str(), lasheader2->get_GUID().c_str());
       different_header++;
     }
     if (lasheader1->version_major != lasheader2->version_major || lasheader1->version_minor != lasheader2->version_minor)
@@ -308,7 +282,7 @@ static int check_header(LASreader* lasreader1, LASreader* lasreader2)
     if (fatal_difference)
     {
       fprintf(stderr, "difference was fatal ... no need to check points\n");
-      byebye(false);
+      byebye();
     }
   }
 
@@ -426,11 +400,7 @@ static int check_header(LASreader* lasreader1, LASreader* lasreader2)
       if (lasreader1->header.evlrs[i].record_length_after_header != lasreader2->header.evlrs[i].record_length_after_header)
       {
         different_header++;
-#ifdef _WIN32
-        fprintf(stderr, "extended variable length record %d record_length_after_header field is different: %I64d %I64d\n", i, lasreader1->header.evlrs[i].record_length_after_header, lasreader2->header.evlrs[i].record_length_after_header);
-#else
         fprintf(stderr, "extended variable length record %d record_length_after_header field is different: %lld %lld\n", i, lasreader1->header.evlrs[i].record_length_after_header, lasreader2->header.evlrs[i].record_length_after_header);
-#endif
       }
       if (memcmp(lasreader1->header.evlrs[i].description, lasreader2->header.evlrs[i].description, 32) != 0)
       {
@@ -454,11 +424,7 @@ static int check_header(LASreader* lasreader1, LASreader* lasreader2)
       }
       else
       {
-#ifdef _WIN32
-        fprintf(stderr, "skipping check of extended variable length record %d due to different size (%I64d != %I64d)\n", i, lasreader1->header.evlrs[i].record_length_after_header, lasreader2->header.evlrs[i].record_length_after_header);
-#else
         fprintf(stderr, "skipping check of extended variable length record %d due to different size (%lld != %lld)\n", i, lasreader1->header.evlrs[i].record_length_after_header, lasreader2->header.evlrs[i].record_length_after_header);
-#endif
       }
     }
   }
@@ -890,11 +856,9 @@ extern int lasdiff_gui(int argc, char *argv[], LASreadOpener* lasreadopener);
 
 int main(int argc, char *argv[])
 {
+  LasTool_lasdiff lastool;
+  lastool.init(argc, argv, "lasdiff");
   int i;
-#ifdef COMPILE_WITH_GUI
-  bool gui = false;
-#endif
-  bool verbose = false;
   int random_seeks = 0;
   const CHAR* wildcard1 = 0;
   const CHAR* wildcard2 = 0;
@@ -908,6 +872,7 @@ int main(int argc, char *argv[])
 #ifdef COMPILE_WITH_GUI
     return lasdiff_gui(argc, argv, 0);
 #else
+    wait_on_exit = true;
     char file_name[256];
     fprintf(stderr,"%s is better run in the command line\n", argv[0]);
     fprintf(stderr,"enter input file1: "); fgets(file_name, 256, stdin);
@@ -922,44 +887,14 @@ int main(int argc, char *argv[])
   {
     for (i = 1; i < argc; i++)
     {
-      if (argv[i][0] == '–') argv[i][0] = '-';
+      if ((unsigned char)argv[i][0] == 0x96) argv[i][0] = '-';
     }
-    if (!lasreadopener.parse(argc, argv)) byebye(true);
-    if (!laswriteopener.parse(argc, argv)) byebye(true);
+    lasreadopener.parse(argc, argv);
+    laswriteopener.parse(argc, argv);
   }
 
-  for (i = 1; i < argc; i++)
-  {
-    if (argv[i][0] == '\0')
-    {
-      continue;
-    }
-    else if (strcmp(argv[i],"-h") == 0 || strcmp(argv[i],"-help") == 0)
-    {
-      fprintf(stderr, "LAStools (by martin@rapidlasso.com) version %d\n", LAS_TOOLS_VERSION);
-      usage();
-    }
-    else if (strcmp(argv[i],"-v") == 0 || strcmp(argv[i],"-verbose") == 0)
-    {
-      verbose = true;
-    }
-    else if (strcmp(argv[i],"-version") == 0)
-    {
-      fprintf(stderr, "LAStools (by martin@rapidlasso.com) version %d\n", LAS_TOOLS_VERSION);
-      byebye();
-    }
-    else if (strcmp(argv[i],"-fail") == 0)
-    {
-    }
-    else if (strcmp(argv[i],"-gui") == 0)
-    {
-#ifdef COMPILE_WITH_GUI
-      gui = true;
-#else
-      fprintf(stderr, "WARNING: not compiled with GUI support. ignoring '-gui' ...\n");
-#endif
-    }
-    else if (strcmp(argv[i],"-random_seeks") == 0)
+  auto arg_local = [&](int& i) -> bool {
+    if (strcmp(argv[i],"-random_seeks") == 0)
     {
       random_seeks = 10;
     }
@@ -967,8 +902,7 @@ int main(int argc, char *argv[])
     {
       if ((i+2) >= argc)
       {
-        fprintf(stderr,"ERROR: '%s' needs 2 arguments: wildcard1 wildcard2\n", argv[i]);
-        byebye(true);
+        laserror("'%s' needs 2 arguments: wildcard1 wildcard2", argv[i]);
       }
       wildcard1 = argv[i+1];
       wildcard2 = argv[i+2];
@@ -986,13 +920,15 @@ int main(int argc, char *argv[])
     }
     else
     {
-      fprintf(stderr, "ERROR: cannot understand argument '%s'\n", argv[i]);
-      byebye(true);
+      return false;
     }
-  }
+    return true;
+  };
+
+  lastool.parse(arg_local);
 
 #ifdef COMPILE_WITH_GUI
-  if (gui)
+  if (lastool.gui)
   {
     return lasdiff_gui(argc, argv, &lasreadopener);
   }
@@ -1008,7 +944,7 @@ int main(int argc, char *argv[])
   int different_header;
 
   // possibly loop over two wild cards
-  
+
   if (wildcard1 && wildcard2)
   {
     LASreadOpener lasreadopener1;
@@ -1019,22 +955,19 @@ int main(int argc, char *argv[])
 
     if (!lasreadopener1.active())
     {
-      fprintf (stderr, "ERROR: wildcard1 specifies no input\n");
-      byebye(true, argc==1);
+      laserror("wildcard1 specifies no input");
     }
 
     if (!lasreadopener2.active())
     {
-      fprintf (stderr, "ERROR: wildcard2 specifies no input\n");
-      byebye(true, argc==1);
+      laserror("wildcard2 specifies no input");
     }
 
     if (lasreadopener1.get_file_name_number() != lasreadopener2.get_file_name_number())
     {
-      fprintf (stderr, "ERROR: wildcard1 (%u) and wildcard2 (%u) specify different number of files\n", lasreadopener1.get_file_name_number(), lasreadopener2.get_file_name_number());
-      byebye(true, argc==1);
+      laserror("wildcard1 (%u) and wildcard2 (%u) specify different number of files", lasreadopener1.get_file_name_number(), lasreadopener2.get_file_name_number());
     }
-    
+
     // possibly multiple input files
 
     while (lasreadopener1.active())
@@ -1043,18 +976,16 @@ int main(int argc, char *argv[])
       file_name1 = LASCopyString(lasreadopener1.get_file_name());
       if (lasreader1 == 0)
       {
-        fprintf (stderr, "ERROR: cannot open '%s'\n", file_name1);
-        byebye(true, argc==1);
+        laserror("cannot open '%s'", file_name1);
       }
       lasreader2 = lasreadopener2.open();
       file_name2 = LASCopyString(lasreadopener2.get_file_name());
       if (lasreader2 == 0)
       {
-        fprintf (stderr, "ERROR: cannot open '%s'\n", file_name2);
-        byebye(true, argc==1);
+        laserror("cannot open '%s'", file_name2);
       }
 
-      fprintf(stderr, "checking '%s' against '%s'\n", file_name1, file_name2);
+      LASMessage(LAS_INFO, "checking '%s' against '%s'", file_name1, file_name2);
 
       // check header
 
@@ -1070,19 +1001,11 @@ int main(int argc, char *argv[])
 
       if (lasreader1->p_count == lasreader2->p_count)
       {
-  #ifdef _WIN32
-        fprintf(stderr, "both have %I64d points. took %g secs.\n", lasreader1->p_count, taketime()-start_time);
-  #else
-        fprintf(stderr, "both have %lld points. took %g secs.\n", lasreader1->p_count, taketime()-start_time);
-  #endif
+        LASMessage(LAS_INFO, "both have %lld points. took %g secs.", lasreader1->p_count, taketime()-start_time);
       }
       else
       {
-  #ifdef _WIN32
-        fprintf(stderr, "one has %I64d the other %I64d points. took %g secs.\n", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
-  #else
-        fprintf(stderr, "one has %lld the other %lld points. took %g secs.\n", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
-  #endif
+        LASMessage(LAS_INFO, "one has %lld the other %lld points. took %g secs.", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
       }
       lasreader1->close();
       delete lasreader1;
@@ -1097,8 +1020,7 @@ int main(int argc, char *argv[])
   {
     if (!lasreadopener.active())
     {
-      fprintf (stderr, "ERROR: no input specified\n");
-      byebye(true, argc==1);
+      laserror("no input specified");
     }
 
     // possibly multiple input files
@@ -1113,15 +1035,13 @@ int main(int argc, char *argv[])
         file_name1 = LASCopyString(lasreadopener.get_file_name());
         if (lasreader1 == 0)
         {
-          fprintf (stderr, "ERROR: cannot open '%s'\n", file_name1);
-          byebye(true, argc==1);
+          laserror("cannot open '%s'", file_name1);
         }
         lasreader2 = lasreadopener.open();
         file_name2 = LASCopyString(lasreadopener.get_file_name());
         if (lasreader2 == 0)
         {
-          fprintf (stderr, "ERROR: cannot open '%s'\n", file_name2);
-          byebye(true, argc==1);
+          laserror("cannot open '%s'", file_name2);
         }
       }
       else
@@ -1130,8 +1050,7 @@ int main(int argc, char *argv[])
         file_name1 = LASCopyString(lasreadopener.get_file_name());
         if (lasreader1 == 0)
         {
-          fprintf (stderr, "ERROR: cannot open '%s'\n", file_name1);
-          byebye(true, argc==1);
+          laserror("cannot open '%s'", file_name1);
         }
         file_name2 = LASCopyString(lasreadopener.get_file_name());
         I32 len = (I32)strlen(file_name1);
@@ -1153,20 +1072,18 @@ int main(int argc, char *argv[])
         }
         else
         {
-          fprintf (stderr, "ERROR: file '%s' not ending in *.las or *.laz\n", file_name1);
-          byebye(true, argc==1);
+          laserror("file '%s' not ending in *.las or *.laz", file_name1);
         }
         LASreadOpener lasreadopener_other;
         lasreadopener_other.set_file_name(file_name2);
         lasreader2 = lasreadopener_other.open();
         if (lasreader2 == 0)
         {
-          fprintf (stderr, "ERROR: cannot open '%s'\n", file_name2);
-          byebye(true, argc==1);
+          laserror("cannot open '%s'", file_name2);
         }
       }
 
-      fprintf(stderr, "checking '%s' against '%s'\n", file_name1, file_name2);
+      LASMessage(LAS_INFO, "checking '%s' against '%s'", file_name1, file_name2);
 
       // check header
 
@@ -1183,17 +1100,12 @@ int main(int argc, char *argv[])
         // prepare the header
         memset(lasreader1->header.system_identifier, 0, 32);
         memset(lasreader1->header.generating_software, 0, 32);
-        sprintf(lasreader1->header.system_identifier, "LAStools (c) by rapidlasso GmbH");
-  #ifdef _WIN64
-        sprintf(lasreader1->header.generating_software, "lasdiff64 (version %d)", LAS_TOOLS_VERSION);
-  #else // _WIN64
-        sprintf(lasreader1->header.generating_software, "lasdiff (version %d)", LAS_TOOLS_VERSION);
-  #endif // _WIN64
+        snprintf(lasreader1->header.system_identifier, sizeof(lasreader1->header.system_identifier), "LAStools (c) by rapidlasso GmbH");
+        snprintf(lasreader1->header.generating_software, sizeof(lasreader1->header.generating_software), "lasdiff%s (version %d)", (IS64 ? "64" : ""), LAS_TOOLS_VERSION);
         laswriter = laswriteopener.open(&lasreader1->header);
         if (laswriter == 0)
         {
-          fprintf (stderr, "ERROR: cannot open '%s'\n", laswriteopener.get_file_name());
-          byebye(true, argc==1);
+          laserror("cannot open '%s'", laswriteopener.get_file_name());
         }
         laswriteopener.set_file_name(0);
       }
@@ -1208,31 +1120,23 @@ int main(int argc, char *argv[])
 
       if (lasreader1->p_count == lasreader2->p_count)
       {
-  #ifdef _WIN32
-        fprintf(stderr, "both have %I64d points. took %g secs.\n", lasreader1->p_count, taketime()-start_time);
-  #else
-        fprintf(stderr, "both have %lld points. took %g secs.\n", lasreader1->p_count, taketime()-start_time);
-  #endif
+        LASMessage(LAS_INFO, "both have %lld points. took %g secs.", lasreader1->p_count, taketime()-start_time);
       }
       else
       {
-  #ifdef _WIN32
-        fprintf(stderr, "one has %I64d the other %I64d points. took %g secs.\n", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
-  #else
-        fprintf(stderr, "one has %lld the other %lld points. took %g secs.\n", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
-  #endif
+        LASMessage(LAS_INFO, "one has %lld the other %lld points. took %g secs.", lasreader1->p_count, lasreader2->p_count, taketime()-start_time);
       }
       lasreader1->close();
       delete lasreader1;
       free(file_name1);
-
+      //
       lasreader2->close();
       delete lasreader2;
       free(file_name2);
     }
   }
 
-  byebye(false, argc==1);
+  byebye();
 
   return 0;
 }

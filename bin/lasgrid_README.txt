@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasgrid:
 
@@ -79,12 +81,12 @@
   amount, here they would be 0.05 units lower than the original,
   which might be useful for subsequent tree top detection.
 
-  Please license from martin.isenburg@rapidlasso.com to use lasgrid
+  Please license from info@rapidlasso.de to use lasgrid
   commercially.
 
   For updates check the website or join the LAStools mailing list.
 
-  http://rapidlasso.com/LAStools
+  https://rapidlasso.de/LAStools
   http://lastools.org/
   http://groups.google.com/group/lastools/
   http://twitter.com/LAStools
@@ -221,6 +223,7 @@ overview of all tool-specific switches:
 -ncols 512             : raster at most 512 columns (starting from the lower left)
 -ll 300000 600000      : start rastering at these lower left x and y coordinates
 -nodata 9999           : use 9999 as the nodata value in the BIL / ASC format
+-grid_center           : aligns the grid's origin to the center of a cell instead of its corner
 -elevation             : use elevation values
 -intensity             : use intensity values
 -highest -high -max    : for each grid cell keep highest value
@@ -483,7 +486,7 @@ Supported Raster Outputs
   -odir C:\data\hillshade (specify output directory)
   -odix _small (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-LAStools (by martin@rapidlasso.com) version 161023 (commercial)
+LAStools (by info@rapidlasso.de) version 161023 (commercial)
 Supported raster operations
   -elevation_lowest (default)
   -elevation_highest
@@ -537,4 +540,4 @@ lasgrid -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let me (info@rapidlasso.de) know

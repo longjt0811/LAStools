@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   demdiff:
 
@@ -22,6 +24,14 @@ for example usage see:
 https://groups.google.com/d/topic/lastools/39hR_4BvvIA/discussion
 https://groups.google.com/d/topic/lastools/nMPU75zpqPw/discussion
 
+overview of all tool-specific switches:
+
+-h                                   : show help output
+-v                                   : more info reported in console
+-vv                                  : even more info reported in console
+-quiet                               : nothing reported in console
+-version                             : reports this tool's version number
+
 for more info:
 
 D:\software\LAStools\bin>demdiff -h
@@ -39,4 +49,4 @@ demdiff -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

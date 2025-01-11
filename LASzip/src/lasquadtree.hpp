@@ -11,15 +11,15 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2012, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2022, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
-    terms of the GNU Lesser General Licence as published by the Free Software
-    Foundation. See the LICENSE.txt file for more information.
+    terms of the Apache Public License 2.0 published by the Apache Software
+    Foundation. See the COPYING file for more information.
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
     implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -33,15 +33,14 @@
   
 ===============================================================================
 */
-#ifndef LAS_QUADTREE_HPP
-#define LAS_QUADTREE_HPP
+#pragma once
 
 #include "mydefs.hpp"
 
 class ByteStreamIn;
 class ByteStreamOut;
 
-#define LAS_SPATIAL_QUAD_TREE 0
+constexpr int LAS_SPATIAL_QUAD_TREE = 0;
 
 class LASLIB_DLL LASquadtree
 {
@@ -142,7 +141,7 @@ private:
   U32 sub_level;
   U32 sub_level_index;
   U32 level_offset[20];
-  U32 coarser_indices[4];
+  U32 coarser_indices[4] = {0};
   U32 adaptive_alloc;
   U32* adaptive;
 
@@ -157,5 +156,3 @@ private:
   void* current_cells;
   U32 next_cell_index;
 };
-
-#endif

@@ -2,9 +2,9 @@
 ===============================================================================
 
   FILE:  lasprecision.cpp
-  
+
   CONTENTS:
-  
+
     This tool computes statistics about the coordinates in a LAS/LAZ file that
     tell us whether the precision "advertised" in the header is really in the
     data. Often I find that the scaling factors in the header are miss-leading
@@ -28,12 +28,12 @@
      - Palm Beach Pre Hurricane.las
 
   PROGRAMMERS:
-  
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
-  
+
+    info@rapidlasso.de  -  https://rapidlasso.de
+
   COPYRIGHT:
-  
-    (c) 2007-17, martin isenburg, rapidlasso - fast tools to catch reality
+
+    (c) 2007-17, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -41,12 +41,12 @@
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
     implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  
+
   CHANGE HISTORY:
-  
-     1 May 2017 -- 3rd example for selective decompression for new LAS 1.4 points 
+
+     1 May 2017 -- 3rd example for selective decompression for new LAS 1.4 points
     30 November 2010 -- created spotting few paper cups at Starbuck's Offenbach
-  
+
 ===============================================================================
 */
 
@@ -59,6 +59,7 @@
 #include "laszip_decompress_selective_v3.hpp"
 #include "laswriter.hpp"
 #include "geoprojectionconverter.hpp"
+#include "lastool.hpp"
 
 static void quicksort_for_shorts(short* a, int i, int j)
 {
@@ -138,34 +139,23 @@ static void quicksort_for_doubles(double* a, int i, int j)
   if (i<in_j) quicksort_for_doubles(a, i, in_j);
 }
 
-void usage(bool error=false, bool wait=false)
+class LasTool_lasprecision : public LasTool
 {
-  fprintf(stderr,"usage:\n");
-  fprintf(stderr,"lasprecision -i in.las\n");
-  fprintf(stderr,"lasprecision -i in.las -number 1000000\n");
-  fprintf(stderr,"lasprecision -i in.las -all -gps -lines 50\n");
-  fprintf(stderr,"lasprecision -i in.las -no_x -no_y -no_z -rgb\n");
-  fprintf(stderr,"lasprecision -i in.las -diff_diff\n");
-  fprintf(stderr,"lasprecision -i in.las -o out.las -rescale 0.01 0.01 0.001 -reoffset 300000 2000000 0\n");
-  fprintf(stderr,"lasprecision -i in.las -o out.las -rescale 0.333333333 0.333333333 0.01\n");
-  fprintf(stderr,"lasprecision -h\n");
-  if (wait)
+private:
+public:
+  void usage() override
   {
-    fprintf(stderr,"<press ENTER>\n");
-    getc(stdin);
-  }
-  exit(error);
-}
-
-static void byebye(bool error=false, bool wait=false)
-{
-  if (wait)
-  {
-    fprintf(stderr,"<press ENTER>\n");
-    getc(stdin);
-  }
-  exit(error);
-}
+    fprintf(stderr, "usage:\n");
+    fprintf(stderr, "lasprecision -i in.las\n");
+    fprintf(stderr, "lasprecision -i in.las -number 1000000\n");
+    fprintf(stderr, "lasprecision -i in.las -all -gps -lines 50\n");
+    fprintf(stderr, "lasprecision -i in.las -no_x -no_y -no_z -rgb\n");
+    fprintf(stderr, "lasprecision -i in.las -diff_diff\n");
+    fprintf(stderr, "lasprecision -i in.las -o out.las -rescale 0.01 0.01 0.001 -reoffset 300000 2000000 0\n");
+    fprintf(stderr, "lasprecision -i in.las -o out.las -rescale 0.333333333 0.333333333 0.01\n");
+    fprintf(stderr, "lasprecision -h\n");
+  };
+};
 
 static double taketime()
 {
@@ -177,19 +167,14 @@ extern int lasprecision_gui(int argc, char *argv[], LASreadOpener* lasreadopener
 #endif
 
 #ifdef COMPILE_WITH_MULTI_CORE
-extern int lasprecision_multi_core(int argc, char *argv[], GeoProjectionConverter* geoprojectionconverter, LASreadOpener* lasreadopener, LASwriteOpener* laswriteopener, int cores);
+extern void lasprecision_multi_core(int argc, char* argv[], GeoProjectionConverter* geoprojectionconverter, LASreadOpener* lasreadopener, LASwriteOpener* laswriteopener, int cores, BOOL cpu64);
 #endif
 
 int main(int argc, char *argv[])
 {
+  LasTool_lasprecision lastool;
+  lastool.init(argc, argv, "lasprecision");
   int i;
-#ifdef COMPILE_WITH_GUI
-  bool gui = false;
-#endif
-#ifdef COMPILE_WITH_MULTI_CORE
-  I32 cores = 1;
-#endif
-  bool verbose = false;
   bool report_diff = true;
   bool report_diff_diff = false;
   bool report_x = true;
@@ -213,6 +198,7 @@ int main(int argc, char *argv[])
 #ifdef COMPILE_WITH_GUI
     return lasprecision_gui(argc, argv, 0);
 #else
+    wait_on_exit = true;
     fprintf(stderr,"%s is better run in the command line\n", argv[0]);
     char file_name[256];
     fprintf(stderr,"enter input file: "); fgets(file_name, 256, stdin);
@@ -227,67 +213,20 @@ int main(int argc, char *argv[])
   {
     for (i = 1; i < argc; i++)
     {
-      if (argv[i][0] == '–') argv[i][0] = '-';
+      if ((unsigned char)argv[i][0] == 0x96) argv[i][0] = '-';
       if (strcmp(argv[i],"-o") == 0 || strcmp(argv[i],"-olas") == 0 || strcmp(argv[i],"-olaz") == 0 || strcmp(argv[i],"-obin") == 0 || strcmp(argv[i],"-otxt") == 0 || strcmp(argv[i],"-reoffset") == 0 || strcmp(argv[i],"-rescale") == 0)
       {
         output = true;
         break;
       }
     }
-    if (!geoprojectionconverter.parse(argc, argv)) byebye(true);
-    if (!lasreadopener.parse(argc, argv)) byebye(true);
-    if (!laswriteopener.parse(argc, argv)) byebye(true);
+    geoprojectionconverter.parse(argc, argv);
+    lasreadopener.parse(argc, argv);
+    laswriteopener.parse(argc, argv);
   }
 
-  for (i = 1; i < argc; i++)
-  {
-    if (argv[i][0] == '\0')
-    {
-      continue;
-    }
-    else if (strcmp(argv[i],"-h") == 0 || strcmp(argv[i],"-help") == 0)
-    {
-      fprintf(stderr, "LAStools (by martin@rapidlasso.com) version %d\n", LAS_TOOLS_VERSION);
-      usage();
-    }
-    else if (strcmp(argv[i],"-v") == 0 || strcmp(argv[i],"-verbose") == 0)
-    {
-      verbose = true;
-    }
-    else if (strcmp(argv[i],"-version") == 0)
-    {
-      fprintf(stderr, "LAStools (by martin@rapidlasso.com) version %d\n", LAS_TOOLS_VERSION);
-      byebye();
-    }
-    else if (strcmp(argv[i],"-fail") == 0)
-    {
-    }
-    else if (strcmp(argv[i],"-gui") == 0)
-    {
-#ifdef COMPILE_WITH_GUI
-      gui = true;
-#else
-      fprintf(stderr, "WARNING: not compiled with GUI support. ignoring '-gui' ...\n");
-#endif
-    }
-    else if (strcmp(argv[i],"-cores") == 0)
-    {
-#ifdef COMPILE_WITH_MULTI_CORE
-      if ((i+1) >= argc)
-      {
-        fprintf(stderr,"ERROR: '%s' needs 1 argument: number\n", argv[i]);
-        usage(true);
-      }
-      argv[i][0] = '\0';
-      i++;
-      cores = atoi(argv[i]);
-      argv[i][0] = '\0';
-#else
-      fprintf(stderr, "WARNING: not compiled with multi-core batching. ignoring '-cores' ...\n");
-      i++;
-#endif
-    }
-    else if ((strcmp(argv[i],"-diff_diff") == 0) || (strcmp(argv[i],"-diff_diff_only") == 0))
+  auto arg_local = [&](int& i) -> bool {
+    if ((strcmp(argv[i],"-diff_diff") == 0) || (strcmp(argv[i],"-diff_diff_only") == 0))
     {
       report_diff_diff = true;
       report_diff = false;
@@ -316,8 +255,7 @@ int main(int argc, char *argv[])
     {
       if ((i+1) >= argc)
       {
-        fprintf(stderr,"ERROR: '%s' needs 1 argument: max\n", argv[i]);
-        byebye(true);
+        laserror("'%s' needs 1 argument: max", argv[i]);
       }
       i++;
       array_max = atoi(argv[i]);
@@ -326,8 +264,7 @@ int main(int argc, char *argv[])
     {
       if ((i+1) >= argc)
       {
-        fprintf(stderr,"ERROR: '%s' needs 1 argument: number\n", argv[i]);
-        byebye(true);
+        laserror("'%s' needs 1 argument: number", argv[i]);
       }
       i++;
       report_lines = atoi(argv[i]);
@@ -343,32 +280,38 @@ int main(int argc, char *argv[])
     }
     else
     {
-      fprintf(stderr, "ERROR: cannot understand argument '%s'\n", argv[i]);
-      byebye(true);
+      return false;
     }
-  }
+    return true;
+  };
+
+  lastool.parse(arg_local);
 
 #ifdef COMPILE_WITH_GUI
-  if (gui)
+  if (lastool.gui)
   {
     return lasprecision_gui(argc, argv, &lasreadopener);
   }
 #endif
 
 #ifdef COMPILE_WITH_MULTI_CORE
-  if (cores > 1)
+  if (lastool.cores > 1)
   {
-    if (lasreadopener.get_file_name_number() < 2)
+    if (lasreadopener.get_use_stdin())
     {
-      fprintf(stderr,"WARNING: only %u input files. ignoring '-cores %d' ...\n", lasreadopener.get_file_name_number(), cores);
+      LASMessage(LAS_WARNING, "using stdin. ignoring '-cores %d' ...", lastool.cores);
+    }
+    else if (lasreadopener.get_file_name_number() < 2)
+    {
+      LASMessage(LAS_WARNING, "only %u input files. ignoring '-cores %d' ...", lasreadopener.get_file_name_number(), lastool.cores);
     }
     else if (lasreadopener.is_merged())
     {
-      fprintf(stderr,"WARNING: input files merged on-the-fly. ignoring '-cores %d' ...\n", cores);
+      LASMessage(LAS_WARNING, "input files merged on-the-fly. ignoring '-cores %d' ...", lastool.cores);
     }
     else
     {
-      return lasprecision_multi_core(argc, argv, &geoprojectionconverter, &lasreadopener, &laswriteopener, cores);
+      lasprecision_multi_core(argc, argv, &geoprojectionconverter, &lasreadopener, &laswriteopener, lastool.cores, lastool.cpu64);
     }
   }
 #endif
@@ -377,8 +320,7 @@ int main(int argc, char *argv[])
 
   if (!lasreadopener.active())
   {
-    fprintf(stderr, "ERROR: no input specified\n");
-    byebye(true, argc==1);
+    laserror("no input specified");
   }
 
   // maybe we do not need to read all layers (for compressed new LAS 1.4 point types only)
@@ -398,8 +340,7 @@ int main(int argc, char *argv[])
 
   if (lasreadopener.get_file_name() && laswriteopener.get_file_name() && (strcmp(lasreadopener.get_file_name(), laswriteopener.get_file_name()) == 0))
   {
-    fprintf(stderr, "ERROR: input and output file name are identical\n");
-    usage(true);
+    laserror("input and output file name are identical");
   }
 
   // check if projection info was set in the command line
@@ -418,15 +359,14 @@ int main(int argc, char *argv[])
 
   while (lasreadopener.active())
   {
-    if (verbose) full_start_time = start_time = taketime();
+    full_start_time = start_time = taketime();
 
     // open lasreader
 
     LASreader* lasreader = lasreadopener.open();
     if (lasreader == 0)
     {
-      fprintf(stderr, "ERROR: could not open lasreader\n");
-      byebye(true, argc==1);
+      laserror("could not open lasreader");
     }
 
     // run presicion statistics across the first array_max points
@@ -470,7 +410,7 @@ int main(int argc, char *argv[])
 
       // do the first pass
 
-      fprintf(stderr, "loading first %u of %u points\n", array_max, (U32)lasreader->npoints);
+      LASMessage(LAS_INFO, "loading first %u of %u points", array_max, (U32)lasreader->npoints);
 
       // loop over points
 
@@ -511,7 +451,7 @@ int main(int argc, char *argv[])
       array_max = array_count;
 
       // sort values
-  
+
       if (report_x)
       {
         quicksort_for_ints(array_x, 0, array_max-1);
@@ -526,7 +466,7 @@ int main(int argc, char *argv[])
       {
         quicksort_for_ints(array_z, 0, array_max-1);
       }
-  
+
       if (report_gps && lasreader->point.have_gps_time)
       {
         quicksort_for_doubles(array_gps, 0, array_max-1);
@@ -599,7 +539,7 @@ int main(int argc, char *argv[])
       {
         quicksort_for_ints(array_z, 0, array_max-2);
       }
-  
+
       if (report_gps && lasreader->point.have_gps_time)
       {
         quicksort_for_doubles(array_gps, 0, array_max-2);
@@ -617,7 +557,7 @@ int main(int argc, char *argv[])
       // first for X & Y & Z
 
       unsigned int count_lines, array_last, array_first;
-  
+
       if (report_x)
       {
         if (report_diff) fprintf(stdout, "X differences \n");
@@ -654,7 +594,7 @@ int main(int argc, char *argv[])
           if (array_y[array_last] != array_y[array_count])
           {
             if (report_diff && (count_lines < report_lines)) { count_lines++; fprintf(stdout, " %10d : %10d   %g\n", array_y[array_last], array_count - array_last, lasreader->header.y_scale_factor*array_y[array_last]); }
-            array_y[array_first] = array_y[array_count] - array_y[array_last]; 
+            array_y[array_first] = array_y[array_count] - array_y[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -682,7 +622,7 @@ int main(int argc, char *argv[])
           if (array_z[array_last] != array_z[array_count])
           {
             if (report_diff && (count_lines < report_lines)) { count_lines++; fprintf(stdout, " %10d : %10d   %g\n", array_z[array_last], array_count - array_last, lasreader->header.z_scale_factor*array_z[array_last]); }
-            array_z[array_first] = array_z[array_count] - array_z[array_last]; 
+            array_z[array_first] = array_z[array_count] - array_z[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -712,7 +652,7 @@ int main(int argc, char *argv[])
           if (array_gps[array_last] != array_gps[array_count])
           {
             if (report_diff) fprintf(stdout, "  %.10g : %10d\n", array_gps[array_last], array_count - array_last);
-            array_gps[array_first] = array_gps[array_count] - array_gps[array_last]; 
+            array_gps[array_first] = array_gps[array_count] - array_gps[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -742,7 +682,7 @@ int main(int argc, char *argv[])
           if (array_r[array_last] != array_r[array_count])
           {
             if (report_diff) fprintf(stdout, "  %10d : %10d\n", array_r[array_last], array_count - array_last);
-            array_r[array_first] = array_r[array_count] - array_r[array_last]; 
+            array_r[array_first] = array_r[array_count] - array_r[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -767,7 +707,7 @@ int main(int argc, char *argv[])
           if (array_g[array_last] != array_g[array_count])
           {
             if (report_diff) fprintf(stdout, "  %10d : %10d\n", array_g[array_last], array_count - array_last);
-            array_g[array_first] = array_g[array_count] - array_g[array_last]; 
+            array_g[array_first] = array_g[array_count] - array_g[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -792,7 +732,7 @@ int main(int argc, char *argv[])
           if (array_b[array_last] != array_b[array_count])
           {
             if (report_diff) fprintf(stdout, "  %10d : %10d\n", array_b[array_last], array_count - array_last);
-            array_b[array_first] = array_b[array_count] - array_b[array_last]; 
+            array_b[array_first] = array_b[array_count] - array_b[array_last];
             array_last = array_count;
             array_first++;
           }
@@ -834,12 +774,11 @@ int main(int argc, char *argv[])
       }
 
       // prepare the header for the surviving points
-
-      strncpy(lasreader->header.system_identifier, "LAStools (c) by rapidlasso GmbH", 32);
+      strncpy_las(lasreader->header.system_identifier, sizeof(lasreader->header.system_identifier), "LAStools (c) by rapidlasso GmbH", 32);
       lasreader->header.system_identifier[31] = '\0';
       char temp[64];
-      sprintf(temp, "lasprecision (%d)", LAS_TOOLS_VERSION);
-      strncpy(lasreader->header.generating_software, temp, 32);
+      snprintf(temp, sizeof(temp), "lasprecision (%d)", LAS_TOOLS_VERSION);
+      strncpy_las(lasreader->header.generating_software, sizeof(lasreader->header.generating_software), temp, 32);
       lasreader->header.generating_software[31] = '\0';
 
       if (projection_was_set)
@@ -861,8 +800,7 @@ int main(int argc, char *argv[])
       LASwriter* laswriter = laswriteopener.open(&lasreader->header);
       if (laswriter == 0)
       {
-        fprintf(stderr, "ERROR: could not open laswriter\n");
-        usage(argc==1);
+        laserror("could not open laswriter");
       }
 
       // loop over points
@@ -892,7 +830,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  byebye(false, argc==1);
+  byebye();
 
   return 0;
 }

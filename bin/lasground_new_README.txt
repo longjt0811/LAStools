@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasground_new:
 
@@ -66,7 +68,7 @@
   LAS/LAZ file that can be used, for example, with the lascanopy or
   lasgrid tools or the pit-free canopy height model (CHM) algorithm.
 
-  Should lasground miss-behave try turning off some optimizations
+  Should lasground_new miss-behave try turning off some optimizations
   using the '-no_clean' or the '-no_bulge' flags.
 
   If there are too few points to do reliable ground classification
@@ -74,7 +76,7 @@
   elevations are zeroed). Alternatively these files can be skipped
   with the command-line option '-skip_files'.
 
-  Please license from martin@rapidlasso.com to use lasground_new
+  Please license from info@rapidlasso.de to use lasground_new
   commercially. Please note that the unlicensed version will set
   intensity, gps_time, user data, and point source ID to zero,
   slightly change the LAS point order, and randomly add a tiny
@@ -82,7 +84,7 @@
 
   For updates check the website or join the LAStools mailing list.
 
-  http://rapidlasso.com/
+  https://rapidlasso.de/
   http://lastools.org/
   http://groups.google.com/group/lastools/
   http://twitter.com/lastools/
@@ -95,33 +97,33 @@
 
 example usage:
 
->> lasground -i terrain.laz -o classified_terrain.laz
+>> lasground_new -i terrain.laz -o classified_terrain.laz
 
 classifies a terrain with the default settings.
 
->> lasground -i terrain.laz -o classified_terrain.laz -feet -elevation_feet
+>> lasground_new -i terrain.laz -o classified_terrain.laz -feet -elevation_feet
 
 classifies a terrain where both horizontal and vertical units are
 in feet instead of in meters (which is assumed by default unless
 there is projection information in the LAS file saying otherwise).
 
->> lasground -i terrain.laz -o classified_terrain.laz -all_returns
+>> lasground_new -i terrain.laz -o classified_terrain.laz -all_returns
 
 classifies a terrain considering all points - not just the last
 returns (as is the default behavior).
 
->> lasground -i tiles_raw\*.laz -odir tiles_ground -olaz -cores 16
+>> lasground_new -i tiles_raw\*.laz -odir tiles_ground -olaz -cores 16
 
 classifies all LAZ files from the tiles_raw folder with the default
 settings on multiple cores and stores the result as LAZ files in the
 tiles_ground folder (that must exist).
 
->> lasground -i *.laz -town -odix _g -olaz -cores 8
+>> lasground_new -i *.laz -town -odix _g -olaz -cores 8
 
 the same as above but uses finer spacing to allowing only smaller
 buildings and other man-made structures to be removed.
 
->> lasground -i *.laz -metro -odix _ground -olaz -cores 4
+>> lasground_new -i *.laz -metro -odix _ground -olaz -cores 4
 
 the same as above but uses a wider spacing to allow removing very
 large buildings such as warehouses and factories.
@@ -361,7 +363,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 150125 (commercial)
+LAStools (by info@rapidlasso.de) version 150125 (commercial)
 usage:
 lasground_new -i in.laz -o out.laz
 lasground_new -i *.laz -odix _g -olaz -cores 4
@@ -375,4 +377,4 @@ lasground_new -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

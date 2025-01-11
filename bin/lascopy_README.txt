@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lascopy:
 
@@ -21,7 +23,7 @@
   does not check for identical GPS-time and return number but simply
   copies the requested attribute in the order the point are in.
 
-  Please license from martin@rapidlasso.com before using lascopy
+  Please license from info@rapidlasso.de before using lascopy
   commercially. Please note that the unlicensed version will set
   intensity, gps_time, user data, and point source ID to zero,
   slightly change the LAS point order, and randomly add a tiny
@@ -30,7 +32,7 @@
 
   For updates check the website or join the LAStools mailing list.
 
-  http://rapidlasso.com/
+  https://rapidlasso.de/
   http://lastools.org/
   http://groups.google.com/group/lastools/
   http://twitter.com/lastools/
@@ -43,27 +45,13 @@
 
 example usage:
 
->> lascopy -i source.laz ^
-           -i target.laz ^
-           -classification ^
-           -o result.laz
-
->> lascopy -i source.laz ^
-           -i target.laz ^
-           -classification ^
-           -o result.laz
-
->> lascopy -i source.laz ^
-           -i target.laz ^
-           -classification ^
-           -zero ^
-           -o result.laz
+lascopy -i source.laz -i target.laz -o result.laz
+lascopy -i source.laz -i target.laz -classification -zero -o result.laz
 
 ===================================================
-
 for more info:
-
 E:\LAStools\bin>lascopy -h
+
 Filter points based on their coordinates.
   -keep_tile 631000 4834000 1000 (ll_x ll_y size)
   -keep_circle 630250.00 4834750.00 100 (x y radius)
@@ -269,7 +257,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 161113 (academic)
+LAStools (by info@rapidlasso.de) version 161113 (academic)
 usage:
 lascopy -i source.las -i target.las -o result.las
 lascopy -i source.laz -i target.laz -o result.laz
@@ -280,4 +268,4 @@ lascopy -h
 
 -------------
 
-if you find bugs let me (martin@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

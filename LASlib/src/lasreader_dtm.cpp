@@ -9,11 +9,11 @@
   
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2013, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2013, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -30,6 +30,7 @@
 */
 #include "lasreader_dtm.hpp"
 
+#include "lasmessage.hpp"
 #include "lasvlrpayload.hpp"
 
 // used to map GeoTIFF codes to GCTP codes
@@ -291,7 +292,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 {
   if (file_name == 0)
   {
-    fprintf(stderr,"ERROR: file name pointer is zero\n");
+    laserror("file name pointer is zero");
     return FALSE;
   }
 
@@ -300,25 +301,24 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
   clean();
 
   // open the DTM file
-
-  file = fopen(file_name, "rb");
+  file = LASfopen(file_name, "rb");
   if (file == 0)
   {
-    fprintf(stderr, "ERROR: cannot open file '%s'\n", file_name);
+    laserror("cannot open file '%s'", file_name);
     return FALSE;
   }
 
   if (setvbuf(file, NULL, _IOFBF, 2*LAS_TOOLS_IO_IBUFFER_SIZE) != 0)
   {
-    fprintf(stderr, "WARNING: setvbuf() failed with buffer size %d\n", 2*LAS_TOOLS_IO_IBUFFER_SIZE);
+    LASMessage(LAS_WARNING, "setvbuf() failed with buffer size %d", 2*LAS_TOOLS_IO_IBUFFER_SIZE);
   }
 
   // read the 200 byte header
 
-  CHAR signature[21];
+  CHAR signature[21] = {0};
   if (fread(signature, 1, 21, file) != 21)
   {
-    fprintf(stderr, "ERROR: reading 21 byte signature for '%s'\n", file_name);
+    laserror("reading 21 byte signature for '%s'", file_name);
     return FALSE;
   }
 
@@ -326,7 +326,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 
   if (strncmp(signature, "PLANS-PC BINARY .DTM", 21) != 0)
   {
-    fprintf(stderr, "ERROR: cannot open DTM file '%s', wrong signature '%21s'\n", file_name, signature);
+    laserror("cannot open DTM file '%s', wrong signature '%21s'", file_name, signature);
     return FALSE;
   }
 
@@ -335,7 +335,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
   CHAR description[61];
   if (fread(description, 1, 61, file) != 61)
   {
-    fprintf(stderr, "ERROR: reading 61 byte description for '%s'\n", file_name);
+    laserror("reading 61 byte description for '%s'", file_name);
     return FALSE;
   }
 
@@ -344,7 +344,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
   F32 version;
   if (fread(&version, 4, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 4 byte version for '%s'\n", file_name);
+    laserror("reading 4 byte version for '%s'", file_name);
     return FALSE;
   }
 
@@ -352,7 +352,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 
   if (version != 3.1f)
   {
-    fprintf(stderr, "WARNING: expected 3.1 but version is %1.1f\n", version);
+    LASMessage(LAS_WARNING, "expected 3.1 but version is %1.1f", version);
   }
 
   // read lower left x
@@ -392,7 +392,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 
   if (rotation != 0.0)
   {
-    fprintf(stderr, "WARNING: expected 0.0 but rotation is %g\n", rotation);
+    LASMessage(LAS_WARNING, "expected 0.0 but rotation is %g", rotation);
   }
 
   F64 column_spacing;
@@ -428,43 +428,43 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 
   if (fread(&horizontal_units, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte horizontal_units for '%s'\n", file_name);
+    laserror("reading 2 byte horizontal_units for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&vertical_units, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte vertical_units for '%s'\n", file_name);
+    laserror("reading 2 byte vertical_units for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&data_type, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte data_type for '%s'\n", file_name);
+    laserror("reading 2 byte data_type for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&coordinate_system, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte horizontal_units for '%s'\n", file_name);
+    laserror("reading 2 byte horizontal_units for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&coordinate_zone, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte coordinate_zone for '%s'\n", file_name);
+    laserror("reading 2 byte coordinate_zone for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&horizontal_datum, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte horizontal_datum for '%s'\n", file_name);
+    laserror("reading 2 byte horizontal_datum for '%s'", file_name);
     return FALSE;
   }
 
   if (fread(&vertical_datum, 2, 1, file) != 1)
   {
-    fprintf(stderr, "ERROR: reading 2 byte vertical_datum for '%s'\n", file_name);
+    laserror("reading 2 byte vertical_datum for '%s'", file_name);
     return FALSE;
   }
 
@@ -483,7 +483,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
       }
       else
       {
-        fprintf(stderr, "UTM zone %d for NAD27 out-of-range\n", (int)coordinate_zone);
+        laserror("UTM zone %d for NAD27 out-of-range", (int)coordinate_zone);
       }
     }
     else if (horizontal_datum == 2) // GEO_DATUM_NAD83
@@ -498,7 +498,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
       }
       else
       {
-        fprintf(stderr, "UTM zone %d for NAD83 out-of-range\n", (int)coordinate_zone);
+        laserror("UTM zone %d for NAD83 out-of-range", (int)coordinate_zone);
       }
     }
     else if (horizontal_datum == 3) // GEO_DATUM_WGS84
@@ -904,7 +904,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
         geokey = PCS_NAD83_Puerto_Rico;
         break;
       default:
-        fprintf(stderr, "state plane NAD83 zone %d not implemented\n", (int)coordinate_zone);
+        LASMessage(LAS_WARNING, "state plane NAD83 zone %d not implemented", (int)coordinate_zone);
       }
     }
 
@@ -984,20 +984,20 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
 
   if (xdim <= 0)
   {
-    fprintf(stderr,"WARNING: xdim was %g. setting to 1.0\n", xdim);
+    LASMessage(LAS_WARNING, "xdim was %g. setting to 1.0", xdim);
     xdim = 1;
   }
 
   if (ydim <= 0)
   {
     ydim = 1;
-    fprintf(stderr,"WARNING: ydim was %g. setting to 1.0\n", ydim);
+    LASMessage(LAS_WARNING, "ydim was %g. setting to 1.0", ydim);
   }
 
   // populate the header as much as it makes sense
 
-  sprintf(header.system_identifier, "LAStools (c) by rapidlasso GmbH");
-  sprintf(header.generating_software, "via LASreaderDTM (%d)", LAS_TOOLS_VERSION);
+  snprintf(header.system_identifier, sizeof(header.system_identifier), "LAStools (c) by rapidlasso GmbH");
+  snprintf(header.generating_software, sizeof(header.generating_software), "via LASreaderDTM (%d)", LAS_TOOLS_VERSION);
 
   // maybe set creation date
 
@@ -1136,7 +1136,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
   }
   else
   {
-    fprintf(stderr,"ERROR: unknown data type %d\n", (I32)data_type);
+    laserror("unknown data type %d", (I32)data_type);
     return FALSE;
   }
 
@@ -1156,7 +1156,7 @@ BOOL LASreaderDTM::open(const CHAR* file_name)
   }
   else
   {
-    fprintf(stderr,"WARNING: DTM raster contains only no data values\n");
+    LASMessage(LAS_WARNING, "DTM raster contains only no data values");
     header.min_z = 0;
     header.max_z = 0;
   }
@@ -1238,11 +1238,7 @@ BOOL LASreaderDTM::read_point_default()
     {
       if (fread((void*)&elevation, 4, 1, file) != 1)
       {
-#ifdef _WIN32
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %I64d points\n", row, nrows, col, ncols, p_count);
-#else
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %lld points\n", row, nrows, col, ncols, p_count);
-#endif
+        LASMessage(LAS_WARNING, "end-of-file after %d of %d rows and %d of %d cols. read %lld points", row, nrows, col, ncols, p_count);
         npoints = p_count;
         return FALSE;
       }
@@ -1252,11 +1248,7 @@ BOOL LASreaderDTM::read_point_default()
       I32 elev;
       if (fread((void*)&elev, 4, 1, file) != 1)
       {
-#ifdef _WIN32
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %I64d points\n", row, nrows, col, ncols, p_count);
-#else
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %lld points\n", row, nrows, col, ncols, p_count);
-#endif
+        LASMessage(LAS_WARNING, "end-of-file after %d of %d rows and %d of %d cols. read %lld points", row, nrows, col, ncols, p_count);
         npoints = p_count;
         return FALSE;
       }
@@ -1267,11 +1259,7 @@ BOOL LASreaderDTM::read_point_default()
       I16 elev;
       if (fread((void*)&elev, 2, 1, file) != 1)
       {
-#ifdef _WIN32
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %I64d points\n", row, nrows, col, ncols, p_count);
-#else
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %lld points\n", row, nrows, col, ncols, p_count);
-#endif
+        LASMessage(LAS_WARNING, "end-of-file after %d of %d rows and %d of %d cols. read %lld points", row, nrows, col, ncols, p_count);
         npoints = p_count;
         return FALSE;
       }
@@ -1282,11 +1270,7 @@ BOOL LASreaderDTM::read_point_default()
       F64 elev;
       if (fread((void*)&elev, 8, 1, file) != 1)
       {
-#ifdef _WIN32
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %I64d points\n", row, nrows, col, ncols, p_count);
-#else
-        fprintf(stderr,"WARNING: end-of-file after %d of %d rows and %d of %d cols. read %lld points\n", row, nrows, col, ncols, p_count);
-#endif
+        LASMessage(LAS_WARNING, "end-of-file after %d of %d rows and %d of %d cols. read %lld points", row, nrows, col, ncols, p_count);
         npoints = p_count;
         return FALSE;
       }
@@ -1294,23 +1278,60 @@ BOOL LASreaderDTM::read_point_default()
     }
     else
     {
-      fprintf(stderr,"ERROR: unknown data type %d\n", (I32)data_type);
+      laserror("unknown data type %d", (I32)data_type);
       return FALSE;
     }
 
     if (elevation != nodata)
     {
-      if (!point.set_x(ll_x + col * xdim))
+      F64 x = ll_x + col* xdim;
+      F64 y = ll_y + row * ydim;
+      F64 z = elevation;
+
+      if (opener->is_offset_adjust() == FALSE) 
       {
-        overflow_I32_x++;
-      }
-      if (!point.set_y(ll_y + row * ydim))
+        // compute the quantized x, y, and z values
+        if (!point.set_x(x)) {
+          overflow_I32_x++;
+        }
+        if (!point.set_y(y)) {
+          overflow_I32_y++;
+        }
+        if (!point.set_z(z)) {
+          overflow_I32_z++;
+        }
+      } 
+      else 
       {
-        overflow_I32_y++;
-      }
-      if (!point.set_z(elevation))
-      {
-        overflow_I32_z++;
+        I64 X = 0;
+        I64 Y = 0;
+        I64 Z = 0;
+
+        if (x >= orig_x_offset)
+          X = ((I64)((x / orig_x_scale_factor) + 0.5));
+        else
+          X = ((I64)((x / orig_x_scale_factor) - 0.5));
+        if (y >= orig_y_offset)
+          Y = ((I64)(((y - orig_y_offset) / orig_y_scale_factor) + 0.5));
+        else
+          Y = ((I64)(((y - orig_y_offset) / orig_y_scale_factor) - 0.5));
+        if (z >= orig_z_offset)
+          Z = ((I64)(((z - orig_z_offset) / orig_z_scale_factor) + 0.5));
+        else
+          Z = ((I64)(((z - orig_z_offset) / orig_z_scale_factor) - 0.5));
+
+        if (I32_FITS_IN_RANGE(X))
+          point.set_X(X);
+        else
+          overflow_I32_x++;
+        if (I32_FITS_IN_RANGE(Y))
+          point.set_Y(Y);
+        else
+          overflow_I32_y++;
+        if (I32_FITS_IN_RANGE(Z))
+          point.set_Z(Z);
+        else
+          overflow_I32_z++;
       }
       p_count++;
       row++;
@@ -1333,29 +1354,17 @@ void LASreaderDTM::close(BOOL close_stream)
 {
   if (overflow_I32_x)
   {
-#ifdef _WIN32
-    fprintf(stderr, "WARNING: total of %I64d integer overflows in x\n", overflow_I32_x);
-#else
-    fprintf(stderr, "WARNING: total of %lld integer overflows in x\n", overflow_I32_x);
-#endif
+    LASMessage(LAS_WARNING, "total of %lld integer overflows in x", overflow_I32_x);
     overflow_I32_x = 0;
   }
   if (overflow_I32_y)
   {
-#ifdef _WIN32
-    fprintf(stderr, "WARNING: total of %I64d integer overflows in y\n", overflow_I32_y);
-#else
-    fprintf(stderr, "WARNING: total of %lld integer overflows in y\n", overflow_I32_y);
-#endif
+    LASMessage(LAS_WARNING, "total of %lld integer overflows in y", overflow_I32_y);
     overflow_I32_y = 0;
   }
   if (overflow_I32_z)
   {
-#ifdef _WIN32
-    fprintf(stderr, "WARNING: total of %I64d integer overflows in z\n", overflow_I32_z);
-#else
-    fprintf(stderr, "WARNING: total of %lld integer overflows in z\n", overflow_I32_z);
-#endif
+    LASMessage(LAS_WARNING, "total of %lld integer overflows in z", overflow_I32_z);
     overflow_I32_z = 0;
   }
   if (file)
@@ -1369,7 +1378,7 @@ BOOL LASreaderDTM::reopen(const CHAR* file_name)
 {
   if (file_name == 0)
   {
-    fprintf(stderr,"ERROR: file name pointer is zero\n");
+    laserror("file name pointer is zero");
     return FALSE;
   }
 
@@ -1381,16 +1390,16 @@ BOOL LASreaderDTM::reopen(const CHAR* file_name)
     file = 0;
   }
 
-  file = fopen(file_name, "rb");
+  file = LASfopen(file_name, "rb");
   if (file == 0)
   {
-    fprintf(stderr, "ERROR: cannot reopen file '%s'\n", file_name);
+    laserror("cannot reopen file '%s'", file_name);
     return FALSE;
   }
 
   if (setvbuf(file, NULL, _IOFBF, 2*LAS_TOOLS_IO_IBUFFER_SIZE) != 0)
   {
-    fprintf(stderr, "WARNING: setvbuf() failed with buffer size %d\n", 2*LAS_TOOLS_IO_IBUFFER_SIZE);
+    LASMessage(LAS_WARNING, "setvbuf() failed with buffer size %d", 2*LAS_TOOLS_IO_IBUFFER_SIZE);
   }
 
   col = 0;
@@ -1430,11 +1439,17 @@ void LASreaderDTM::clean()
   overflow_I32_z = 0;
 }
 
-LASreaderDTM::LASreaderDTM()
+LASreaderDTM::LASreaderDTM(LASreadOpener* opener) :LASreader(opener)
 {
   file = 0;
   scale_factor = 0;
   offset = 0;
+  orig_x_offset = 0.0;
+  orig_y_offset = 0.0;
+  orig_z_offset = 0.0;
+  orig_x_scale_factor = 0.01;
+  orig_y_scale_factor = 0.01;
+  orig_z_scale_factor = 0.01;
   clean();
 }
 
@@ -1476,6 +1491,9 @@ void LASreaderDTM::populate_scale_and_offset()
     }
     header.z_scale_factor = 0.01;
   }
+  orig_x_scale_factor = header.x_scale_factor;
+  orig_y_scale_factor = header.y_scale_factor;
+  orig_z_scale_factor = header.z_scale_factor;
 
   // if not specified in the command line, set a reasonable offset
   if (offset)
@@ -1501,6 +1519,9 @@ void LASreaderDTM::populate_scale_and_offset()
     else
       header.z_offset = 0;
   }
+  orig_x_offset = header.x_offset;
+  orig_y_offset = header.y_offset;
+  orig_z_offset = header.z_offset;
 }
 
 void LASreaderDTM::populate_bounding_box()
@@ -1518,8 +1539,8 @@ void LASreaderDTM::populate_bounding_box()
 
   if ((header.min_x > 0) != (dequant_min_x > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for min_x from %g to %g.\n", header.min_x, dequant_min_x);
-    fprintf(stderr, "         set scale factor for x coarser than %g with '-rescale'\n", header.x_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for min_x from% g to% g.\n" \
+                            "\tset scale factor for x coarser than %g with '-rescale'", header.min_x, dequant_min_x, header.x_scale_factor);
   }
   else
   {
@@ -1527,8 +1548,8 @@ void LASreaderDTM::populate_bounding_box()
   }
   if ((header.max_x > 0) != (dequant_max_x > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for max_x from %g to %g.\n", header.max_x, dequant_max_x);
-    fprintf(stderr, "         set scale factor for x coarser than %g with '-rescale'\n", header.x_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for max_x from% g to% g.\n" \
+                            "\tset scale factor for x coarser than %g with '-rescale'", header.max_x, dequant_max_x, header.x_scale_factor);
   }
   else
   {
@@ -1536,8 +1557,8 @@ void LASreaderDTM::populate_bounding_box()
   }
   if ((header.min_y > 0) != (dequant_min_y > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for min_y from %g to %g.\n", header.min_y, dequant_min_y);
-    fprintf(stderr, "         set scale factor for y coarser than %g with '-rescale'\n", header.y_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for min_y from %g to %g.\n" \
+                            "\tset scale factor for y coarser than %g with '-rescale'", header.min_y, dequant_min_y, header.y_scale_factor);
   }
   else
   {
@@ -1545,8 +1566,8 @@ void LASreaderDTM::populate_bounding_box()
   }
   if ((header.max_y > 0) != (dequant_max_y > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for max_y from %g to %g.\n", header.max_y, dequant_max_y);
-    fprintf(stderr, "         set scale factor for y coarser than %g with '-rescale'\n", header.y_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for max_y from %g to %g.\n" \
+                            "\tset scale factor for y coarser than %g with '-rescale'", header.max_y, dequant_max_y, header.y_scale_factor);
   }
   else
   {
@@ -1554,8 +1575,8 @@ void LASreaderDTM::populate_bounding_box()
   }
   if ((header.min_z > 0) != (dequant_min_z > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for min_z from %g to %g.\n", header.min_z, dequant_min_z);
-    fprintf(stderr, "         set scale factor for z coarser than %g with '-rescale'\n", header.z_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for min_z from %g to %g.\n" \
+                            "\tset scale factor for z coarser than %g with '-rescale'", header.min_z, dequant_min_z, header.z_scale_factor);
   }
   else
   {
@@ -1563,8 +1584,8 @@ void LASreaderDTM::populate_bounding_box()
   }
   if ((header.max_z > 0) != (dequant_max_z > 0))
   {
-    fprintf(stderr, "WARNING: quantization sign flip for max_z from %g to %g.\n", header.max_z, dequant_max_z);
-    fprintf(stderr, "         set scale factor for z coarser than %g with '-rescale'\n", header.z_scale_factor);
+    LASMessage(LAS_WARNING, "quantization sign flip for max_z from %g to %g.\n" \
+                            "\tset scale factor for z coarser than %g with '-rescale'", header.max_z, dequant_max_z, header.z_scale_factor);
   }
   else
   {
@@ -1572,7 +1593,7 @@ void LASreaderDTM::populate_bounding_box()
   }
 }
 
-LASreaderDTMrescale::LASreaderDTMrescale(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor) : LASreaderDTM()
+LASreaderDTMrescale::LASreaderDTMrescale(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor) : LASreaderDTM(opener)
 {
   scale_factor[0] = x_scale_factor;
   scale_factor[1] = y_scale_factor;
@@ -1586,7 +1607,7 @@ BOOL LASreaderDTMrescale::open(const CHAR* file_name)
   return TRUE;
 }
 
-LASreaderDTMreoffset::LASreaderDTMreoffset(F64 x_offset, F64 y_offset, F64 z_offset) : LASreaderDTM()
+LASreaderDTMreoffset::LASreaderDTMreoffset(LASreadOpener* opener, F64 x_offset, F64 y_offset, F64 z_offset) : LASreaderDTM(opener)
 {
   this->offset[0] = x_offset;
   this->offset[1] = y_offset;
@@ -1600,7 +1621,10 @@ BOOL LASreaderDTMreoffset::open(const CHAR* file_name)
   return TRUE;
 }
 
-LASreaderDTMrescalereoffset::LASreaderDTMrescalereoffset(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset) : LASreaderDTMrescale(x_scale_factor, y_scale_factor, z_scale_factor), LASreaderDTMreoffset(x_offset, y_offset, z_offset)
+LASreaderDTMrescalereoffset::LASreaderDTMrescalereoffset(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset) : 
+  LASreaderDTM(opener),
+  LASreaderDTMrescale(opener, x_scale_factor, y_scale_factor, z_scale_factor),
+  LASreaderDTMreoffset(opener, x_offset, y_offset, z_offset)
 {
 }
 

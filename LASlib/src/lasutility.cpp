@@ -9,11 +9,11 @@
   
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2017, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2017, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -29,6 +29,8 @@
 ===============================================================================
 */
 #include "lasutility.hpp"
+
+#include "lasmessage.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -406,6 +408,7 @@ LASbin::LASbin(F64 step, F64 clamp_min, F64 clamp_max)
   bins_neg = 0;
   values_pos = 0;
   values_neg = 0;
+  anker = 0;
 }
 
 LASbin::~LASbin()
@@ -466,6 +469,8 @@ void LASbin::add(I64 item)
 
 void LASbin::add_to_bin(I32 bin)
 {
+#pragma warning(push)
+#pragma warning(disable : 6011)
   if (first)
   {
     anker = bin;
@@ -483,19 +488,19 @@ void LASbin::add_to_bin(I32 bin)
         bins_pos = (U32*)malloc(sizeof(U32)*size_pos);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u pos bins\012", size_pos);
-          exit(1);
+          laserror("allocating %u pos bins", size_pos);
+          byebye();
         }
         for (i = 0; i < size_pos; i++) bins_pos[i] = 0;
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_pos = (U32*)realloc(bins_pos, sizeof(U32)*new_size);
+        bins_pos = (U32*)realloc_las(bins_pos, sizeof(U32)*new_size);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u pos bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u pos bins", new_size);
+          byebye();
         }
         for (i = size_pos; i < new_size; i++) bins_pos[i] = 0;
         size_pos = new_size;
@@ -515,19 +520,19 @@ void LASbin::add_to_bin(I32 bin)
         bins_neg = (U32*)malloc(sizeof(U32)*size_neg);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u neg bins\012", size_neg);
-          exit(1);
+          laserror("allocating %u neg bins", size_neg);
+          byebye();
         }
         for (i = 0; i < size_neg; i++) bins_neg[i] = 0;
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_neg = (U32*)realloc(bins_neg, sizeof(U32)*new_size);
+        bins_neg = (U32*)realloc_las(bins_neg, sizeof(U32)*new_size);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u neg bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u neg bins", new_size);
+          byebye();
         }
         for (i = size_neg; i < new_size; i++) bins_neg[i] = 0;
         size_neg = new_size;
@@ -535,10 +540,13 @@ void LASbin::add_to_bin(I32 bin)
     }
     bins_neg[bin]++;
   }
+#pragma warning(pop)
 }
 
 void LASbin::add(I32 item, I32 value)
 {
+#pragma warning(push)
+#pragma warning(disable : 6011)
   total += item;
   count++;
   I32 bin = I32_FLOOR(one_over_step*item);
@@ -560,30 +568,30 @@ void LASbin::add(I32 item, I32 value)
         values_pos = (F64*)malloc(sizeof(F64)*size_pos);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u pos bins\012", size_pos);
-          exit(1);
+          laserror("allocating %u pos bins", size_pos);
+          byebye();
         }
         if (values_pos == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u pos values\012", size_pos);
-          exit(1);
+          laserror("allocating %u pos values", size_pos);
+          byebye();
         }
         for (i = 0; i < size_pos; i++) { bins_pos[i] = 0; values_pos[i] = 0; }
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_pos = (U32*)realloc(bins_pos, sizeof(U32)*new_size);
-        values_pos = (F64*)realloc(values_pos, sizeof(F64)*new_size);
+        bins_pos = (U32*)realloc_las(bins_pos, sizeof(U32)*new_size);
+        values_pos = (F64*)realloc_las(values_pos, sizeof(F64)*new_size);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u pos bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u pos bins", new_size);
+          byebye();
         }
         if (values_pos == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u pos values\012", new_size);
-          exit(1);
+          laserror("reallocating %u pos values", new_size);
+          byebye();
         }
         for (i = size_pos; i < new_size; i++) { bins_pos[i] = 0; values_pos[i] = 0; }
         size_pos = new_size;
@@ -605,30 +613,30 @@ void LASbin::add(I32 item, I32 value)
         values_neg = (F64*)malloc(sizeof(F64)*size_neg);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u neg bins\012", size_neg);
-          exit(1);
+          laserror("allocating %u neg bins", size_neg);
+          byebye();
         }
         if (values_neg == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u neg values\012", size_neg);
-          exit(1);
+          laserror("allocating %u neg values", size_neg);
+          byebye();
         }
         for (i = 0; i < size_neg; i++) { bins_neg[i] = 0; values_neg[i] = 0; }
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_neg = (U32*)realloc(bins_neg, sizeof(U32)*new_size);
-        values_neg = (F64*)realloc(values_neg, sizeof(F64)*new_size);
+        bins_neg = (U32*)realloc_las(bins_neg, sizeof(U32)*new_size);
+        values_neg = (F64*)realloc_las(values_neg, sizeof(F64)*new_size);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u neg bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u neg bins", new_size);
+          byebye();
         }
         if (values_neg == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u neg values\012", new_size);
-          exit(1);
+          laserror("reallocating %u neg values", new_size);
+          byebye();
         }
         for (i = size_neg; i < new_size; i++) { bins_neg[i] = 0; values_neg[i] = 0; }
         size_neg = new_size;
@@ -637,10 +645,13 @@ void LASbin::add(I32 item, I32 value)
     bins_neg[bin]++;
     values_neg[bin] += value;
   }
+#pragma warning(pop)
 }
 
 void LASbin::add(F64 item, F64 value)
 {
+#pragma warning(push)
+#pragma warning(disable : 6011)
   total += item;
   count++;
   I32 bin = I32_FLOOR(one_over_step*item);
@@ -662,30 +673,30 @@ void LASbin::add(F64 item, F64 value)
         values_pos = (F64*)malloc(sizeof(F64)*size_pos);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u pos bins\012", size_pos);
-          exit(1);
+          laserror("allocating %u pos bins", size_pos);
+          byebye();
         }
         if (values_pos == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u pos values\012", size_pos);
-          exit(1);
+          laserror("allocating %u pos values", size_pos);
+          byebye();
         }
         for (i = 0; i < size_pos; i++) { bins_pos[i] = 0; values_pos[i] = 0; }
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_pos = (U32*)realloc(bins_pos, sizeof(U32)*new_size);
-        values_pos = (F64*)realloc(values_pos, sizeof(F64)*new_size);
+        bins_pos = (U32*)realloc_las(bins_pos, sizeof(U32)*new_size);
+        values_pos = (F64*)realloc_las(values_pos, sizeof(F64)*new_size);
         if (bins_pos == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u pos bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u pos bins", new_size);
+          byebye();
         }
         if (values_pos == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u pos values\012", new_size);
-          exit(1);
+          laserror("reallocating %u pos values", new_size);
+          byebye();
         }
         for (i = size_pos; i < new_size; i++) { bins_pos[i] = 0; values_pos[i] = 0; }
         size_pos = new_size;
@@ -707,30 +718,30 @@ void LASbin::add(F64 item, F64 value)
         values_neg = (F64*)malloc(sizeof(F64)*size_neg);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u neg bins\012", size_neg);
-          exit(1);
+          laserror("allocating %u neg bins", size_neg);
+          byebye();
         }
         if (values_neg == 0)
         {
-          fprintf(stderr, "ERROR: allocating %u neg values\012", size_neg);
-          exit(1);
+          laserror("allocating %u neg values", size_neg);
+          byebye();
         }
         for (i = 0; i < size_neg; i++) { bins_neg[i] = 0; values_neg[i] = 0; }
       }
       else
       {
         I32 new_size = bin + 1024;
-        bins_neg = (U32*)realloc(bins_neg, sizeof(U32)*new_size);
-        values_neg = (F64*)realloc(values_neg, sizeof(F64)*new_size);
+        bins_neg = (U32*)realloc_las(bins_neg, sizeof(U32)*new_size);
+        values_neg = (F64*)realloc_las(values_neg, sizeof(F64)*new_size);
         if (bins_neg == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u neg bins\012", new_size);
-          exit(1);
+          laserror("reallocating %u neg bins", new_size);
+          byebye();
         }
         if (values_neg == 0)
         {
-          fprintf(stderr, "ERROR: reallocating %u neg values\012", new_size);
-          exit(1);
+          laserror("reallocating %u neg values", new_size);
+          byebye();
         }
         for (i = size_neg; i < new_size; i++) { bins_neg[i] = 0; values_neg[i] = 0; }
         size_neg = new_size;
@@ -739,6 +750,7 @@ void LASbin::add(F64 item, F64 value)
     bins_neg[bin]++;
     values_neg[bin] += value;
   }
+#pragma warning(pop)
 }
 
 static void lidardouble2string(CHAR* string, F64 value)
@@ -846,17 +858,10 @@ void LASbin::report(FILE* file, const CHAR* name, const CHAR* name_avg) const
   if (count)
   {
     lidardouble2string(temp1, total/count, step);
-#ifdef _WIN32
-    if (name)
-      fprintf(file, "  average %s %s for %I64d element(s)\012", name, temp1, count);
-    else
-      fprintf(file, "  average %s for %I64d element(s)\012", temp1, count);
-#else
     if (name)
       fprintf(file, "  average %s %s for %lld element(s)\012", name, temp1, count);
     else
       fprintf(file, "  average %s for %lld element(s)\012", temp1, count);
-#endif
   }
 }
 
@@ -985,7 +990,7 @@ BOOL LAShistogram::parse(int argc, char* argv[])
     {
       continue;
     }
-    else if (strcmp(argv[i],"-h") == 0 || strcmp(argv[i],"-help") == 0)
+    else if (strcmp(argv[i],"-h") == 0 || strcmp(argv[i], "-hh") == 0 || strcmp(argv[i],"-help") == 0)
     {
       return TRUE;
     }
@@ -993,13 +998,13 @@ BOOL LAShistogram::parse(int argc, char* argv[])
     {
       if ((i+2) >= argc)
       {
-        fprintf(stderr,"ERROR: '%s' needs 2 arguments: name step\n", argv[i]);
+        laserror("'%s' needs 2 arguments: name step", argv[i]);
         return FALSE;
       }
       F64 step = 0.0;
       if (sscanf(argv[i+2], "%lf", &step) != 1)
       {
-        fprintf(stderr,"ERROR: '%s' needs 2 arguments: name step but '%s' is no valid step\n", argv[i], argv[i+2]);
+        laserror("'%s' needs 2 arguments: name step but '%s' is no valid step", argv[i], argv[i+2]);
         return FALSE;
       }
       if (!histo(argv[i+1], step)) return FALSE;
@@ -1009,13 +1014,13 @@ BOOL LAShistogram::parse(int argc, char* argv[])
     {
       if ((i+3) >= argc)
       {
-        fprintf(stderr,"ERROR: '%s' needs 3 arguments: name step name_avg\n", argv[i]);
+        laserror("'%s' needs 3 arguments: name step name_avg", argv[i]);
         return FALSE;
       }
       F64 step = 0.0;
       if (sscanf(argv[i+2], "%lf", &step) != 1)
       {
-        fprintf(stderr,"ERROR: '%s' needs 3 arguments: name step name_avg but '%s' is no valid step\n", argv[i], argv[i+2]);
+        laserror("'%s' needs 3 arguments: name step name_avg but '%s' is no valid step", argv[i], argv[i+2]);
         return FALSE;
       }
       if (!histo_avg(argv[i+1], step, argv[i+3])) return FALSE;
@@ -1137,7 +1142,7 @@ BOOL LAShistogram::histo(const CHAR* name, F64 step)
     wavepacket_location_bin = new LASbin(step);
   else
   {
-    fprintf(stderr,"ERROR: histogram of '%s' not implemented\n", name);
+    laserror("histogram of '%s' not implemented", name);
     return FALSE;
   }
   is_active = TRUE;
@@ -1154,7 +1159,7 @@ BOOL LAShistogram::histo_avg(const CHAR* name, F64 step, const CHAR* name_avg)
       classification_bin_scan_angle = new LASbin(step);
     else
     {
-      fprintf(stderr,"ERROR: histogram of '%s' with '%s' averages not implemented\n", name, name_avg);
+      laserror("histogram of '%s' with '%s' averages not implemented", name, name_avg);
       return FALSE;
     }
   }
@@ -1168,7 +1173,7 @@ BOOL LAShistogram::histo_avg(const CHAR* name, F64 step, const CHAR* name_avg)
       scan_angle_bin_intensity = new LASbin(step);
     else
     {
-      fprintf(stderr,"ERROR: histogram of '%s' with '%s' averages not implemented\n", name, name_avg);
+      laserror("histogram of '%s' with '%s' averages not implemented", name, name_avg);
       return FALSE;
     }
   }
@@ -1178,13 +1183,13 @@ BOOL LAShistogram::histo_avg(const CHAR* name, F64 step, const CHAR* name_avg)
       return_map_bin_intensity = new LASbin(1);
     else
     {
-      fprintf(stderr,"ERROR: histogram of '%s' with '%s' averages not implemented\n", name, name_avg);
+      laserror("histogram of '%s' with '%s' averages not implemented", name, name_avg);
       return FALSE;
     }
   }
   else
   {
-    fprintf(stderr,"ERROR: histogram of '%s' not implemented\n", name);
+    laserror("histogram of '%s' not implemented", name);
     return FALSE;
   }
   is_active = TRUE;
@@ -1456,15 +1461,17 @@ BOOL LASoccupancyGrid::add_internal(I32 pos_x, I32 pos_y)
       array_sizes = &plus_plus_sizes;
     }
   }
+#pragma warning(push)
+#pragma warning(disable : 6011)
   // maybe grow banded grid in y direction
   if ((U32)pos_y >= *array_size)
   {
     U32 array_size_new = ((pos_y/1024)+1)*1024;
     if (*array_size)
     {
-      if (array == &minus_plus || array == &plus_plus) *ankers = (I32*)realloc(*ankers, array_size_new*sizeof(I32));
-      *array = (U32**)realloc(*array, array_size_new*sizeof(U32*));
-      *array_sizes = (U16*)realloc(*array_sizes, array_size_new*sizeof(U16));
+      if (array == &minus_plus || array == &plus_plus) *ankers = (I32*)realloc_las(*ankers, array_size_new*sizeof(I32));
+      *array = (U32**)realloc_las(*array, array_size_new*sizeof(U32*));
+      *array_sizes = (U16*)realloc_las(*array_sizes, array_size_new*sizeof(U16));
     }
     else
     {
@@ -1492,7 +1499,7 @@ BOOL LASoccupancyGrid::add_internal(I32 pos_x, I32 pos_y)
     U32 array_sizes_new = ((pos_x_pos/256)+1)*256;
     if ((*array_sizes)[pos_y])
     {
-      (*array)[pos_y] = (U32*)realloc((*array)[pos_y], array_sizes_new*sizeof(U32));
+      (*array)[pos_y] = (U32*)realloc_las((*array)[pos_y], array_sizes_new*sizeof(U32));
     }
     else
     {
@@ -1509,6 +1516,7 @@ BOOL LASoccupancyGrid::add_internal(I32 pos_x, I32 pos_y)
   (*array)[pos_y][pos_x_pos] |= pos_x_bit;
   num_occupied++;
   return TRUE;
+#pragma warning(pop)
 }
 
 BOOL LASoccupancyGrid::occupied(const LASpoint* point) const
@@ -1601,6 +1609,8 @@ BOOL LASoccupancyGrid::active() const
 
 void LASoccupancyGrid::reset()
 {
+#pragma warning(push)
+#pragma warning(disable : 6001)
   min_x = min_y = max_x = max_y = 0;
   if (grid_spacing > 0) grid_spacing = -grid_spacing;
   if (minus_minus_size)
@@ -1644,11 +1654,12 @@ void LASoccupancyGrid::reset()
     plus_plus_size = 0;
   }
   num_occupied = 0;
+#pragma warning(pop)
 }
 
 BOOL LASoccupancyGrid::write_asc_grid(const CHAR* file_name) const
 {
-  FILE* file = fopen(file_name, "w");
+  FILE* file = LASfopen(file_name, "w");
   if (file == 0) return FALSE;
   fprintf(file, "ncols %d\012", max_x-min_x+1);
   fprintf(file, "nrows %d\012", max_y-min_y+1);
@@ -1696,6 +1707,7 @@ LASoccupancyGrid::LASoccupancyGrid(F32 grid_spacing)
   plus_plus = 0;
   plus_plus_sizes = 0;
   num_occupied = 0;
+  anker = 0;
 }
 
 LASoccupancyGrid::~LASoccupancyGrid()

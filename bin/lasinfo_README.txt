@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasinfo:
 
@@ -22,6 +24,13 @@
   batch mode such as:
 
   lasinfo -i *.laz -otxt -odir ..\reports -odix _info -cores 3
+
+  In addition, the lasinfo output can be provided in JSON format. To save 
+  the output to a JSON file, use either the '-ojs' option or specify an output 
+  file name with the '-o' option and the '.json' extension. The '-js' option can 
+  be used to output the JSON format directly.
+
+  lasinfo64 -i *.laz -ojs -js -o output_file.json
 
   The tool can also be used to modify various other entries in
   the header as described below. This needs to be done with care
@@ -209,6 +218,16 @@ without checking whether this will corrupt the file.
 CAREFUL! sets the start of waveform data packet record field of the LAS header
 to 0 without checking whether this will corrupt the file.
 
+Querying CRS representations and information, based on the input file.
+The [wkt] WKT representation, the [js] PROJJSON representation, the [str] PROJ string, 
+the [epsg] EPSG code, the [el] ellipsoid information, the [datum] datum information and 
+the [cs] coordinate system information can be queried.
+CAREFUL! If a CRS object was not created from a PROJ string, exporting it to a PROJ string will in 
+most cases lead to a loss of information. This can potentially lead to incorrect transformations. 
+The use of PROJ strings should only be used with advanced knowledge.
+
+>> lasinfo64 -i lidar.las -proj_info wkt js str epsg el datum cs
+
 ****************************************************************
 
 overview of all tool-specific switches:
@@ -231,6 +250,7 @@ overview of all tool-specific switches:
 -cd or -compute_density              : compute rough approximation for covered area, density, and spacing
 -gw or -gps_week                     : compute the GPS week (if data is Asjusted Standard GPS time)
 -nco or -no_check_outside            : don't check whether points fall outside of LAS header bounding box
+-proj_info wkt js str epsg el datum cs : get CRS representations and information of the input file: WKT, PROJJSON, PROJ string or EPSG code representation and ellipsoid, datum or coordinate system information.
 -ro or -report_outside               : report attributes of each point that falls outside of LAS header bounding box
 -subseq 1000000 2000000              : only load subsequence from 1 millionth to 2 millionth point
 -start_at_point 1500000              : start loading from point at position 1500000 in the file
@@ -446,10 +466,10 @@ Supported LAS Outputs
   -odir C:\data\ground (specify output directory)
   -odix _classified (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-  -olas -olaz -otxt -obin -oqfit (specify format)
+  -olas -olaz -otxt -ojs -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 150526
+LAStools (by info@rapidlasso.de) version 150526
 usage:
 lasinfo -i lidar.las
 lasinfo -i lidar.las -compute_density -o lidar_info.txt
@@ -466,4 +486,4 @@ lasinfo -i *.laz -set_system_identifier "hello world!" -set_generating_software 
 
 ----
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

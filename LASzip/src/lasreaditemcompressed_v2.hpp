@@ -9,14 +9,14 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2014, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2022, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
-    terms of the GNU Lesser General Licence as published by the Free Software
+    terms of the Apache Public License 2.0 published by the Apache Software
     Foundation. See the COPYING file for more information.
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
@@ -52,11 +52,11 @@ public:
 
 private:
   ArithmeticDecoder* dec;
-  U8 last_item[20];
-  U16 last_intensity[16];
+  U8 last_item[20]  = {0};
+  U16 last_intensity[16] = {0};
   StreamingMedian5 last_x_diff_median5[16];
   StreamingMedian5 last_y_diff_median5[16];
-  I32 last_height[8];
+  I32 last_height[8] = {0};
 
   ArithmeticModel* m_changed_values;
   IntegerCompressor* ic_intensity;
@@ -84,9 +84,9 @@ public:
 private:
   ArithmeticDecoder* dec;
   U32 last, next;
-  U64I64F64 last_gpstime[4];
-  I32 last_gpstime_diff[4];
-  I32 multi_extreme_counter[4];
+  U64I64F64 last_gpstime[4] = {0};
+  I32 last_gpstime_diff[4] = {0};
+  I32 multi_extreme_counter[4] = {0};
 
   ArithmeticModel* m_gpstime_multi;
   ArithmeticModel* m_gpstime_0diff;
@@ -106,7 +106,7 @@ public:
 
 private:
   ArithmeticDecoder* dec;
-  U16 last_item[3];
+  U16 last_item[3] = {0};
 
   ArithmeticModel* m_byte_used;
   ArithmeticModel* m_rgb_diff_0;

@@ -9,11 +9,11 @@
   
   PROGRAMMERS:
   
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2012, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2012, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -30,6 +30,7 @@
 */
 #include "laswriter_bin.hpp"
 
+#include "lasmessage.hpp"
 #include "bytestreamout_file.hpp"
 
 #ifdef _WIN32
@@ -89,21 +90,21 @@ BOOL LASwriterBIN::open(const char* file_name, const LASheader* header, const ch
 {
   if (file_name == 0)
   {
-    fprintf(stderr,"ERROR: file name pointer is zero\n");
+    laserror("file name pointer is zero");
     return FALSE;
   }
 
-  file = fopen(file_name, "wb");
+  file = LASfopen(file_name, "wb");
 
   if (file == 0)
   {
-    fprintf(stderr, "ERROR: cannot open file '%s'\n", file_name);
+    laserror("cannot open file '%s'", file_name);
     return FALSE;
   }
 
   if (setvbuf(file, NULL, _IOFBF, io_buffer_size) != 0)
   {
-    fprintf(stderr, "WARNING: setvbuf() failed with buffer size %u\n", io_buffer_size);
+    LASMessage(LAS_WARNING, "setvbuf() failed with buffer size %u", io_buffer_size);
   }
 
   ByteStreamOut* out;
@@ -119,7 +120,7 @@ BOOL LASwriterBIN::open(FILE* file, const LASheader* header, const char* version
 {
   if (file == 0)
   {
-    fprintf(stderr,"ERROR: file pointer is zero\n");
+    laserror("file pointer is zero");
     return FALSE;
   }
 
@@ -128,7 +129,7 @@ BOOL LASwriterBIN::open(FILE* file, const LASheader* header, const char* version
   {
     if(_setmode( _fileno( stdout ), _O_BINARY ) == -1 )
     {
-      fprintf(stderr, "ERROR: cannot set stdout to binary (untranslated) mode\n");
+      laserror("cannot set stdout to binary (untranslated) mode");
     }
   }
 #endif
@@ -146,14 +147,14 @@ BOOL LASwriterBIN::open(ByteStreamOut* stream, const LASheader* header, const ch
 {
   if (stream == 0)
   {
-    fprintf(stderr,"ERROR: ByteStreamOut pointer is zero\n");
+    laserror("ByteStreamOut pointer is zero");
     return FALSE;
   }
   this->stream = stream;
 
   if (header == 0)
   {
-    fprintf(stderr,"ERROR: LASheader pointer is zero\n");
+    laserror("LASheader pointer is zero");
     return FALSE;
   }
 
@@ -170,7 +171,7 @@ BOOL LASwriterBIN::open(ByteStreamOut* stream, const LASheader* header, const ch
   tsheader.size = sizeof(TSheader);
   tsheader.version = this->version;
   tsheader.recog_val = 970401;
-  strncpy(tsheader.recog_str, "CXYZ", 4);
+  strncpy_las(tsheader.recog_str, sizeof(tsheader.recog_str), "CXYZ", 4);
   tsheader.npoints = (header->number_of_point_records ? header->number_of_point_records : (U32)header->extended_number_of_point_records);
   double scale = header->x_scale_factor;
   if (header->y_scale_factor < scale) scale = header->y_scale_factor; 
@@ -257,11 +258,7 @@ I64 LASwriterBIN::close(BOOL update_npoints)
     {
       if (!stream->isSeekable())
       {
-#ifdef _WIN32
-        fprintf(stderr, "ERROR: stream not seekable. cannot update header from %I64d to %I64d points.\n", npoints, p_count);
-#else
-        fprintf(stderr, "ERROR: stream not seekable. cannot update header from %lld to %lld points.\n", npoints, p_count);
-#endif
+        laserror("stream not seekable. cannot update header from %lld to %lld points.", npoints, p_count);
       }
       else
       {
@@ -291,6 +288,11 @@ LASwriterBIN::LASwriterBIN()
 {
   stream = 0;
   file = 0;
+  origin_x = 0;
+  origin_y = 0;
+  origin_z = 0;
+  units = 0;
+  version = 0;
 }
 
 LASwriterBIN::~LASwriterBIN()

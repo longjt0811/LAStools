@@ -9,14 +9,14 @@
   
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2017, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2022, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
-    terms of the GNU Lesser General Licence as published by the Free Software
+    terms of the Apache Public License 2.0 published by the Apache Software
     Foundation. See the COPYING file for more information.
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
@@ -388,7 +388,10 @@ BOOL LASreadPoint::seek(const U32 current, const U32 target)
     }
     while (delta)
     {
-      read(seek_point);
+      if (!read(seek_point))
+      {
+        return FALSE;
+      }
       delta--;
     }
   }
@@ -435,7 +438,7 @@ BOOL LASreadPoint::read(U8* const * point)
           if (current_chunk >= number_chunks)
           {
             number_chunks += 256;
-            chunk_starts = (I64*)realloc(chunk_starts, sizeof(I64)*(number_chunks+1));
+            chunk_starts = (I64*)realloc_las(chunk_starts, sizeof(I64)*(number_chunks+1));
           }
           chunk_starts[tabled_chunks] = point_start; // needs fixing
           tabled_chunks++;
@@ -508,17 +511,17 @@ BOOL LASreadPoint::read(U8* const * point)
       // end-of-file
       if (dec)
       {
-        sprintf(last_error, "end-of-file during chunk with index %u", current_chunk);
+        snprintf(last_error, 128, "end-of-file during chunk with index %u", current_chunk);
       }
       else
       {
-        sprintf(last_error, "end-of-file");
+        snprintf(last_error, 128, "end-of-file");
       }
     }
     else
     {
       // decompression error
-      sprintf(last_error, "chunk with index %u of %u is corrupt", current_chunk, tabled_chunks);
+      snprintf(last_error, 128, "chunk with index %u of %u is corrupt", current_chunk, tabled_chunks);
       // if we know where the next chunk starts ...
       if ((current_chunk+1) < tabled_chunks)
       {
@@ -550,7 +553,7 @@ BOOL LASreadPoint::check_end()
           // create error string
           if (last_error == 0) last_error = new CHAR[128];
           // report error
-          sprintf(last_error, "chunk with index %u of %u is corrupt", current_chunk, tabled_chunks);
+          snprintf(last_error, 128, "chunk with index %u of %u is corrupt", current_chunk, tabled_chunks);
           return FALSE;
         }
       }
@@ -606,7 +609,7 @@ BOOL LASreadPoint::read_chunk_table()
       // create error string
       if (last_error == 0) last_error = new CHAR[128];
       // report error
-      sprintf(last_error, "compressor was interrupted before writing adaptive chunk table of LAZ file");
+      snprintf(last_error, 128, "compressor was interrupted before writing adaptive chunk table of LAZ file");
       return FALSE;
     }
     // otherwise we build the chunk table as we read the file
@@ -621,7 +624,7 @@ BOOL LASreadPoint::read_chunk_table()
     // create warning string
     if (last_warning == 0) last_warning = new CHAR[128];
     // report warning
-    sprintf(last_warning, "compressor was interrupted before writing chunk table of LAZ file");
+    snprintf(last_warning, 128, "compressor was interrupted before writing chunk table of LAZ file");
     return TRUE;
   }
 
@@ -740,12 +743,15 @@ BOOL LASreadPoint::read_chunk_table()
     }
     else
     {
+#pragma warning(push)
+#pragma warning(disable : 6011)
       // otherwise fix as many additional chunk_starts as possible
       U32 i;
       for (i = 1; i < tabled_chunks; i++)
       {
         chunk_starts[i] += chunk_starts[i-1];
       }
+#pragma warning(pop)
     }
     // create warning string
     if (last_warning == 0) last_warning = new CHAR[128];
@@ -759,21 +765,17 @@ BOOL LASreadPoint::read_chunk_table()
       // report warning
       if (last_position == chunk_table_start_position)
       {
-        sprintf(last_warning, "chunk table is missing. improper use of LAZ compressor?");
+        snprintf(last_warning, 128, "chunk table is missing. improper use of LAZ compressor?");
       }
       else
       {
-#ifdef _WIN32
-        sprintf(last_warning, "chunk table and %I64d bytes are missing. LAZ file truncated during copy or transfer?", chunk_table_start_position - last_position);
-#else
-        sprintf(last_warning, "chunk table and %lld bytes are missing. LAZ file truncated during copy or transfer?", chunk_table_start_position - last_position);
-#endif
+        snprintf(last_warning, 128, "chunk table and %lld bytes are missing. LAZ file truncated during copy or transfer?", chunk_table_start_position - last_position);
       }
     }
     else
     {
       // report warning
-      sprintf(last_warning, "corrupt chunk table");
+      snprintf(last_warning, 128, "corrupt chunk table");
     }
   }
   if (!instream->seek(chunks_start))

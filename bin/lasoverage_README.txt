@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasoverage:
 
@@ -63,7 +65,7 @@
   Unfortunately the LAS specification uses the word "overlap" where
   it should be using the word "overage".
 
-  Please license from martin@rapidlasso.com before using lasoverage
+  Please license from info@rapidlasso.de before using lasoverage
   commercially.
 
   For updates check the website or join the LAStools mailing list.
@@ -145,4 +147,4 @@ for more info:
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let me (info@rapidlasso.de) know

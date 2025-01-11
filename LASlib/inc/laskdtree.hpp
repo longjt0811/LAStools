@@ -10,11 +10,11 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com - http://rapidlasso.com
+    info@rapidlasso.de - https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2021, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2021, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -24,7 +24,8 @@
     implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   
   CHANGE HISTORY:
-  
+
+     8 December 2023 -- Fix memory leak
     26 June 2021 -- new LASkdtreePoint after four weeks of memoy pain in Samara
     26 October 2019 -- created at LoCoworking after three days of rain in Samara
   
@@ -40,9 +41,8 @@
 
 #include <list>
 #include <set>
-using namespace std;
 
-typedef set<U32> my_index_set;
+typedef std::set<U32> my_index_set;
 
 class LASkdtreeRectangle
 {
@@ -69,7 +69,7 @@ public:
   LASkdtreePoint(F64 x, F64 y);
 };
 
-typedef list<LASkdtreeRectangle> my_rectangle_list;
+typedef std::list<LASkdtreeRectangle> my_rectangle_list;
 
 class LASkdtreeRectanglesNode
 {

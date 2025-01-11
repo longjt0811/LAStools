@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasdiff:
 
@@ -210,7 +212,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 140301
+LAStools (by info@rapidlasso.de) version 140301
 usage:
 lasdiff lidar.las
 lasdiff lidar1.las lidar1.laz
@@ -224,4 +226,4 @@ lasdiff -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

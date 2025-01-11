@@ -32,6 +32,7 @@ set(LAS_SRC
 	lasfilter.cpp
 	lastransform.cpp
 	laskdtree.cpp
+	lascopc.cpp
 	fopen_compressed.cpp
 )
 
@@ -55,6 +56,7 @@ set(LAZ_SRC
 	lasinterval.cpp
 	laszip.cpp
 	mydefs.cpp
+	lasmessage.cpp
 )
 
 foreach(file ${LAZ_SRC})
@@ -63,11 +65,13 @@ endforeach(file)
 
 file(GLOB_RECURSE LAS_INCLUDES
 	${CMAKE_SOURCE_DIR}/LASzip/src/*.hpp 
+	${CMAKE_SOURCE_DIR}/LASzip/include/*.h
 	${CMAKE_SOURCE_DIR}/LASlib/inc/*.hpp
 )
 
 add_library(LASlib ${LAS_SRC} ${LAZ_SRC_FULL})
 set_property(TARGET LASlib PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET LASlib PROPERTY CXX_STANDARD 11)
 
 if (BUILD_SHARED_LIBS)
 	target_compile_definitions(LASlib PRIVATE "COMPILE_AS_DLL")
@@ -76,6 +80,7 @@ endif()
 target_include_directories(LASlib PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/LASlib/inc>
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/LASzip/src>
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/LASzip/include/laszip>
   $<INSTALL_INTERFACE:include/LASlib>
 )
 set_target_properties(LASlib PROPERTIES

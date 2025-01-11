@@ -1,3 +1,89 @@
+12 December 2024 -- NEW: -offset_adjust to avoid range errors on transformations
+9 December 2024 -- NEW: lascopy64: new match arguments: number_of_returns, scan_angle, flags, user_data
+25 November 2024 -- NEW: demzip and demdiff @linux
+25 November 2024 -- fix: lasvdatum performance bug / debug output
+22 November 2024 -- 7z removed from the delivery. User must install it themselves if required.
+19 November 2024 -- NEW: Extended lasgrid and las2dem with '-grid_center' argument.
+19 November 2024 -- fix: blast2dem get dynamic directories
+18 November 2024 -- NEW: validate LAS version and point_data_format prior writing LAS/LAZ files
+14 November 2024 -- NEW: lascopy: -copy_attribute, -copy_return_number, -copy_number_of_returns arguments
+12 November 2024 -- fix: lasinfo GUID byteorder
+11 November 2024 -- NEW: Multi-file support for PROJ operations
+07 November 2024 -- convert intensity to gray RGB value (https://groups.google.com/g/lastools/c/mnEbBBCsN2M/m/DyFYL4d9BwAJ)
+06 November 2024 -- fix: lasinfo multi-core performance issue
+06 November 2024 -- NEW: 'no_data_alpha' option to support alpha channel in GeoTIFF outputs
+31 October 2024 -- NEW: lasgrid64: Support more than 64 colors in color mapping
+31 October 2024 -- NEW: lascopy64: Support rgb and user data as copy value
+31 October 2024 -- NEW: lascopy64: Give warning when keys not match
+31 October 2024 -- NEW: Added support for BigTIFF format in TIFF outputs to handle data larger than 4GB.
+16 October 2024 -- fix: las2dem64 handle NaN triangles on small step size
+01 October 2024 -- fix: lastile multi core
+28 September 2024 -- NEW: lasgrid64 precision enhancement
+28 September 2024 -- NEW: rasterizer upgrade from 32 to 64 bit
+28 September 2024 -- NEW: lasvdatum: improve gtx parser; handle invalid files; -gtx_debug [n] argument
+28 September 2024 -- NEW: lasground_new multicore
+28 September 2024 -- NEW: Extension of lasinfo to support JSON output.
+28 September 2024 -- NEW: Integrate PROJ library into LAStools for CRS transformations and metadata querying
+28 September 2024 -- fix: Enhance log for stdin and multi-core
+05 August 2024 -- NEW: blast2dem ported to linux
+05 August 2024 -- NEW: local GUI option on 64 bit versions
+12 July 2024 -- fix: close #203: ascii file encoding fix
+10 July 2024 -- NEW: lasdatum -preserve_z argument to keep original height after transformation (only transform x/y coordinates)  
+09 July 2024 -- NEW: filter argument -drop_edge_of_flight_line
+04 July 2024 -- NEW: lasinfo -scale_header argument to do a relative scale of all header values 
+24 June 2024 -- fix: las2dem: rasterizer could hang on tiny grid steps
+21 June 2024 -- NEW: lasvdatum subgrid merge
+21 June 2024 -- fix: avoid fallback to verbose if -vv and -v is used
+21 June 2024 -- fix: log las file open at very_verbose level
+21 June 2024 -- close #199: ARM64 fix; explicit signed char usage
+17 June 2024 -- NEW: support ascii codepages (umlauts) in filenames
+17 June 2024 -- resolve compiler warnings
+11 June 2024 -- fix: argument handler multi core support; pass 64bit to all multicore tools; fix 64bit executeable param
+04 June 2024 -- NEW: lasheight: -kill and -prohibit_extrapolation options
+03 June 2024 -- fix: lasclassify: z_from_attrib support
+31 Mai 2024 -- fix: lasvoxel: support ignore_xxx arguments
+29 Mai 2024 -- NEW: lasdatum: support >16 (sub)grids (up to 255); print very_verbose log output about grid selection
+22 Mai 2024 -- fix: lasground64, lasground_new64: continue with next file on single file abort  
+21 Mai 2024 -- bugfix error handling
+18 Mai 2024 -- NEW: lasclip: support filename_as_prefix and filename_as_suffix
+7 Mai 2024 -- lascopy redesign: multiple match and copy options
+7 Mai 2024 -- unify exit codes; refactoring error handling
+7 Mai 2024 -- fix: lasinfo output point iterator
+19 March 2024 -- NEW: read z from attribute (-z_from_attribute) 
+19 March 2024 -- fix: find licensefile at bin location (linux)
+19 March 2024 -- fix: multicore bin localization (linux)
+26 February 2024 -- LASMessage concept; warnings fix; error handling
+13 February 2024 -- bugfix BIL writer and multi-core argument parser
+18 January 2024 -- implement translate_scale_translate functions (64bit)
+15 January 2024 -- fix coldesc support las2txt, txt2las; doc update
+14 December 2023 -- hsv/hsl colormodel implementation
+8 December 2023 -- copc implementation 
+10 November 2023 -- fix: las2dem: missing pixel bug 
+04 August 2023 -- set default of VLR header "reserved" to 0 instead of 0xAABB
+31 July 2023 -- NEW: las3dpoly and lasintensity
+30 March 2023 -- lasclip: Enable large SHP files in split mode
+02 February 2023 -- Support of non-extended classifications in laswriter
+20 December 2022 -- ArcGIS plugin update to ArcGIS Pro
+ 6 December 2022 -- lasintensity: tool to adjust intensity by scan angle and atmosphere
+28 November 2022 -- las2las: added parameter '-load_ogc_wkt' (load string from file to OGC WKT)
+16 June 2022 -- changed reference docs from *_README.txt to *_README.md
+22 March 2022 -- lasindex: added -o parameter; Fix fseek for gcc for las/lax file > 2Gb
+22 March 2022 -- LASlib: added '-iptx_transform' option; 
+ 7 January 2022 -- lastrack: extra_byte output bugfix
+30 December 2021 -- fix small memory leak in lasreaditemcompressed_v3.cpp
+ 1 December 2021 -- lasclip: merge split output with same shape names
+18 November 2021 -- LASlib: new LAStransform '-force_RGB' 
+12 November 2021 -- LASlib/LASzip merge, bug fix memory leak; add some x64 tool versions 
+19 July 2021 -- NEW: lasvdatum: vertically moves elevation using ellipsoidal / geoidal difference grids in GTX format
+15 July 2021 -- lasinfo: terribly stupid bug fixed for recently added option '-delete_empty' 
+12 July 2021 -- lasview: bug fix in saving on manual edits. now multiple edits can be saved without restarting the viewer.
+11 July 2021 -- lassort: catching quicksort failure with proper ERROR when stack overflow due to exzessive duplicate points
+10 July 2021 -- lascopy: added '-keypoint_flag', '-synthetic_flag' and '-overlap_flag' so that all flags can be copied
+ 6 July 2021 -- Potree16: fix for measuring tool bug introduced by recent Google Chrome and Microsoft Edge browser update
+ 5 July 2021 -- NEW: lasprobe: handy tool to probe the elevation of one or many LiDAR files at one indicated x / y position
+15 June 2021 -- LASlib: new '-clamp_RGB_to_8bit' transform useful after '-scale_rgb 0.07 0.05 0.05' to avoid 8 bit overflow
+10 June 2021 -- lasgrid: added '-color_map color_map.txt' to map small values from 0 to 63 to specified RGB color 
+10 June 2021 -- lasinfo: new option '-delete_empty' for deleting LAS files with zero points
  9 June 2021 -- LASlib: bug fix, disallow simultanous use of '-keep_class' together with '-keep_extended_class'
  7 June 2021 -- lasgrid: fixed '-classification_majority_16bit' to support extended classes
  5 June 2021 -- lasview: option '-screenshot memoy.ppm' starts the viewer and grabs / stored the first full frame to PPM format. 

@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasprecision:
 
@@ -639,7 +641,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 140301
+LAStools (by info@rapidlasso.de) version 140301
 usage:
 lasprecision -i in.las
 lasprecision -i in.las -number 1000000
@@ -652,4 +654,4 @@ lasprecision -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

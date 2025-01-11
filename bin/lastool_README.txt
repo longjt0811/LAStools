@@ -1,23 +1,27 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lastool
 
   One tool to rule them all - a simple GUI for LAStools.
+  
+  This tool is obsolete now:
+  Right now we have a GUI within most tool items.
+  Soon we will provide a new GUI wrapper for all tools.
+  
 
-  Please license from martin.isenburg@rapidlasso.com to use lastool 
+  Please license from info@rapidlasso.de to use lastool 
   commercially.
 
   For updates check the website or join the LAStools mailing list.
 
   http://lastools.org/
   http://groups.google.com/group/lastools/
-  http://twitter.com/lastools/
-  http://facebook.com/lastools/
-  http://linkedin.com/groups?gid=4408378
 
-  Martin @lastools
+  Jochen @lastools
  
-  acknowledgment:
+  Acknowledgment:
   The GUI of lastool is realized with Paul Rademacher's GLUI - a
   GLUT-based C++ user interface library which provides controls
   such as buttons, checkboxes, radio buttons, and spinners to
@@ -41,8 +45,8 @@ for more info:
 
 C:\lastools\bin> lastool -h
 Please note that LAStools is not "free" (see http://lastools.org/LICENSE.txt)
-contact 'martin.isenburg@rapidlasso.com' to clarify licensing terms if needed.
-LAStools (by martin@rapidlasso.com) version 140615
+contact 'info@rapidlasso.de' to clarify licensing terms if needed.
+LAStools (by info@rapidlasso.de) version 140615
 usage:
 lastool
 lastool -i *.las
@@ -54,4 +58,4 @@ lastool -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let us (info@rapidlasso.de) know

@@ -9,11 +9,11 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2018, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2018, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -24,6 +24,8 @@
   
   CHANGE HISTORY:
   
+    9 November 2022 -- support of COPC VLR and EVLR
+    13 June 2022 -- support unicode filenames
     10 July 2018 -- user must set seek-ability of istream (hard to determine) 
     19 April 2017 -- support for selective decompression for new LAS 1.4 points 
     1 February 2017 -- better support for OGC WKT strings in VLRs or EVLRs
@@ -51,20 +53,19 @@
 #else
 #include <istream>
 #include <fstream>
-using namespace std;
 #endif
 
 class LASreadPoint;
 
-class LASreaderLAS : public LASreader
+class LASLIB_DLL LASreaderLAS : public LASreader
 {
 public:
-
   void set_delete_stream(BOOL delete_stream=TRUE) { this->delete_stream = delete_stream; };
+  void set_keep_copc(BOOL keep_copc) { this->keep_copc = keep_copc; };
 
   BOOL open(const char* file_name, I32 io_buffer_size=LAS_TOOLS_IO_IBUFFER_SIZE, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
   BOOL open(FILE* file, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
-  BOOL open(istream& stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL, BOOL seekable=TRUE);
+  BOOL open(std::istream& stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL, BOOL seekable=TRUE);
   virtual BOOL open(ByteStreamIn* stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   I32 get_format() const;
@@ -74,7 +75,7 @@ public:
   ByteStreamIn* get_stream() const;
   void close(BOOL close_stream=TRUE);
 
-  LASreaderLAS();
+  LASreaderLAS(LASreadOpener* opener);
   virtual ~LASreaderLAS();
 
 protected:
@@ -87,12 +88,13 @@ private:
   BOOL delete_stream;
   LASreadPoint* reader;
   BOOL checked_end;
+  BOOL keep_copc;
 };
 
 class LASreaderLASrescale : public virtual LASreaderLAS
 {
 public:
-  LASreaderLASrescale(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, BOOL check_for_overflow=TRUE);
+  LASreaderLASrescale(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, BOOL check_for_overflow=TRUE);
 
 protected:
   virtual BOOL open(ByteStreamIn* stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
@@ -106,23 +108,23 @@ protected:
 class LASreaderLASreoffset : public virtual LASreaderLAS
 {
 public:
-  LASreaderLASreoffset(F64 x_offset, F64 y_offset, F64 z_offset);
-  LASreaderLASreoffset(); // auto reoffset
+  LASreaderLASreoffset(LASreadOpener* opener, F64 x_offset, F64 y_offset, F64 z_offset);
+  LASreaderLASreoffset(LASreadOpener* opener); // auto reoffset
 
 protected:
   virtual BOOL open(ByteStreamIn* stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
   virtual BOOL read_point_default();
   BOOL auto_reoffset;
   BOOL reoffset_x, reoffset_y, reoffset_z;
-  F64 offset[3];
+  F64 offset[3] = {0};
   F64 orig_x_offset, orig_y_offset, orig_z_offset;
 };
 
 class LASreaderLASrescalereoffset : public LASreaderLASrescale, LASreaderLASreoffset
 {
 public:
-  LASreaderLASrescalereoffset(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset);
-  LASreaderLASrescalereoffset(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor); // auto reoffset
+  LASreaderLASrescalereoffset(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset);
+  LASreaderLASrescalereoffset(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor); // auto reoffset
 
 protected:
   BOOL open(ByteStreamIn* stream, BOOL peek_only=FALSE, U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);

@@ -9,11 +9,11 @@
 
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2013, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2013, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -51,7 +51,7 @@ public:
   void close(BOOL close_stream=TRUE);
   BOOL reopen(const char* file_name);
 
-  LASreaderSHP();
+  LASreaderSHP(LASreadOpener* opener);
   virtual ~LASreaderSHP();
 
 protected:
@@ -66,6 +66,8 @@ private:
   I32 points_allocated;
   I32 number_of_points;
   I32 point_count;
+  F64 orig_x_offset, orig_y_offset, orig_z_offset;
+  F64 orig_x_scale_factor, orig_y_scale_factor, orig_z_scale_factor;
   bool piped;
   void populate_scale_and_offset();
   void populate_bounding_box();
@@ -76,7 +78,7 @@ class LASreaderSHPrescale : public virtual LASreaderSHP
 {
 public:
   virtual BOOL open(const char* file_name);
-  LASreaderSHPrescale(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor);
+  LASreaderSHPrescale(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor);
 
 protected:
   F64 scale_factor[3];
@@ -86,7 +88,7 @@ class LASreaderSHPreoffset : public virtual LASreaderSHP
 {
 public:
   virtual BOOL open(const char* file_name);
-  LASreaderSHPreoffset(F64 x_offset, F64 y_offset, F64 z_offset);
+  LASreaderSHPreoffset(LASreadOpener* opener, F64 x_offset, F64 y_offset, F64 z_offset);
 protected:
   F64 offset[3];
 };
@@ -95,7 +97,7 @@ class LASreaderSHPrescalereoffset : public LASreaderSHPrescale, LASreaderSHPreof
 {
 public:
   BOOL open(const char* file_name);
-  LASreaderSHPrescalereoffset(F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset);
+  LASreaderSHPrescalereoffset(LASreadOpener* opener, F64 x_scale_factor, F64 y_scale_factor, F64 z_scale_factor, F64 x_offset, F64 y_offset, F64 z_offset);
 };
 
 #endif

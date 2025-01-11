@@ -1,6 +1,9 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
-  blast2iso:
+blast2iso:
+##########
 
   This tool can reads billion of LIDAR points from the LAS/LAZ
   format, triangulates them a seamless (!) TIN, and extracts 
@@ -11,17 +14,24 @@
   is geo-referencing information in the input file or if it is
   specified explicitely in the command line. 
 
+# Control parameters:
+
+-smooth [n]
+  Number of smooth iterations. Typical values are between [2..20]. 
+  Option operates on the TIN before extracting the contours and 
+  hence is safe. 
+-clean [n]
+  Removes entire contours shorter than [n] units.
+  You can get less wiggly contours by first thinning the points 
+  with the '-contours' option available in lasthin.
+  Caution: -clean on las2iso is different!
+
   Note: to guarantee non-crossing iso-contours the '-simplify'
   (or '-simplify_length) and the '-simplify_area' parameters
   should not be used (or set to zero). This is because those
   two options directly try to simplify individual contours after
-  they were extracted, which can lead to crossing. However, the
-  '-smooth' option operates on the TIN before extracting the
-  contours, and hence is safe. The '-clean' option simply removes
-  entire contours that are too short. You can get less wiggly
-  contours by first thinning the points with the '-contours' 
-  option available in lasthin.
-
+  they were extracted, which can lead to crossing. 
+  
   Isolines crossing triangles whose edge length is larger than a
   threshold can be eliminated with the '-kill 250' option. The
   default is a kill of 50 meter. Use '-kill 1000000' to disable
@@ -31,19 +41,15 @@
 
   This is part of the BLAST extension pack of LAStools that is
   built on streaming TINs via spatial finalization & streaming
-  Delaunay. Please license from martin@rapidlasso.com before
+  Delaunay. Please license from info@rapidlasso.de before
   you use blast2iso commercially.
 
-  For updates check the website or join the LAStools mailing list.
-
-  http://rapidlasso.com/
-  http://lastools.org/
+  For updates check the website or join the LAStools google group.
+  
+  https://rapidlasso.de/
   http://groups.google.com/group/lastools/
-  http://twitter.com/lastools/
-  http://facebook.com/lastools/
-  http://linkedin.com/groups?gid=4408378
 
-  Martin @lastools
+  Jochen @lastools
  
 ****************************************************************
 
@@ -237,7 +243,7 @@ Optional Settings
   -only_2d
   -kml_absolute
   -kml_elevation_offset 17.5
-LAStools BLAST (by martin.isenburg@rapidlasso.com) version 140301 (unlicensed)
+LAStools BLAST (by info@rapidlasso.de) version 140301 (unlicensed)
 usage:
 blast2iso -i gigantic.laz -o contours.shp -iso_range 1510 1540 1
 blast2iso -i huge_lidar.las -o contours.shp -iso_number 20
@@ -249,4 +255,4 @@ blast2iso -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let me (info@rapidlasso.de) know

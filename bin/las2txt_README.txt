@@ -1,19 +1,17 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   las2txt:
 
   Converts from binary LAS/LAZ 1.0 - 1.4 to an ASCII text format
  
-  For updates check the website or join the LAStools mailing list.
-
-  http://rapidlasso.com/
-  http://lastools.org/
+  For updates check the website or join the LAStools google group.
+  
+  https://rapidlasso.de/
   http://groups.google.com/group/lastools/
-  http://twitter.com/lastools/
-  http://facebook.com/lastools/
-  http://linkedin.com/groups?gid=4408378
 
-  Martin @lastools
+  Jochen @lastools
 
 ****************************************************************
 
@@ -254,10 +252,10 @@ Supported LAS Outputs
   -odir C:\data\ground (specify output directory)
   -odix _classified (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-  -olas -olaz -otxt -obin -oqfit (specify format)
+  -olas -olaz -otxt -obin -oqfit -optx -opts (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 150526
+LAStools (by info@rapidlasso.de) version 150526
 usage:
 las2txt -i test.las -parse Mxyzrna -stdout | more
 las2txt -i *.las -parse xyzt
@@ -296,4 +294,4 @@ possible are 'percent', 'dollar', 'comma', 'star',
 
 ---------------
 
-if you find bugs let me (martin@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

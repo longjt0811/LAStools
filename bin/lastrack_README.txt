@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lastrack:
 
@@ -58,18 +60,28 @@
   -store_xyz_range_as_extra_bytes
   -store_xyz_range_precise_as_extra_bytes
 
-  Please license from martin.isenburg@rapidlasso.com before using
+  Height ist stored as signed 16 Bit integer.
+    Resolution is cm, so you will have values between 
+    (-327.68 - 327.67 m).
+  Height_precise ist stored as 32 Bit integer/1000.
+    Resolution is mm, so you will have values between
+    (−2147483.648 - 2147483.647 m).
+  Range is stored as unsigned 16 Bit integer/100 (0 - 655.35 m).
+  Range_precise as unsigned 32 Bit integer/1000 (0 - 4294967.295 m).
+  
+  So if your values might get big and you dont want to risk an
+  integer overflow use the _precise version of the parameter.
+  
+  
+  Please license from info@rapidlasso.de before using
   lastrack commercially.
 
   For updates check the website or join the LAStools mailing list.
 
   http://lastools.org/
   http://groups.google.com/group/lastools/
-  http://twitter.com/lastools/
-  http://facebook.com/lastools/
-  http://linkedin.com/groups?gid=4408378
 
-  Martin @lastools
+  Jochen @lastools
 
 ****************************************************************
 
@@ -378,7 +390,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 171215 (academic)
+LAStools (by info@rapidlasso.de) version 171215 (academic)
 usage:
 lastrack -i in.laz -track tj.laz -offset -2.21 -classify_below -0.4 7 -o out.laz
 lastrack -i in.laz -track tj.laz -offset -1.87 -drop_below -2.00 -o out.laz -verbose
@@ -390,4 +402,4 @@ lastrack -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

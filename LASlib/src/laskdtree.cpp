@@ -9,11 +9,11 @@
   
   PROGRAMMERS:
   
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
   
   COPYRIGHT:
   
-    (c) 2007-2019, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2019, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -30,6 +30,7 @@
 */
 
 #include "laskdtree.hpp"
+#include "lasmessage.hpp"
 
 #include <stdio.h>
 
@@ -95,6 +96,7 @@ LASkdtreeRectanglesNode::LASkdtreeRectanglesNode()
   left = 0;
   right = 0;
   list = 0;
+  split = 0;
 }
 
 LASkdtreeRectanglesNode::~LASkdtreeRectanglesNode()
@@ -403,7 +405,7 @@ void LASkdtreeRectangles::overlap_rectangles(LASkdtreeRectanglesNode* node, I32 
 
 void LASkdtreeRectangles::print_overlap()
 {
-  fprintf(stderr, "overlap elements: %u\n", (U32)overlap_set->size());
+  LASMessage(LAS_INFO, "overlap elements: %u", (U32)overlap_set->size());
   my_index_set::iterator set_element = overlap_set->begin();
   while (TRUE)
   {
@@ -414,7 +416,7 @@ void LASkdtreeRectangles::print_overlap()
 
     U32 idx = (*set_element);
 
-    fprintf(stderr, "overlap %u\n", idx);
+    LASMessage(LAS_INFO, "overlap %u", idx);
 
     set_element++;
   }
@@ -425,10 +427,12 @@ LASkdtreeRectangles::LASkdtreeRectangles()
   rectangle_list = 0;
   overlap_set = 0;
   root = 0;
+  num_rectangles = 0;
 }
 
 LASkdtreeRectangles::~LASkdtreeRectangles()
 {
   if (rectangle_list) delete rectangle_list;
   if (root) delete root;
+  if (overlap_set) delete overlap_set;
 }

@@ -9,11 +9,11 @@
   
   PROGRAMMERS:
 
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
+    info@rapidlasso.de  -  https://rapidlasso.de
 
   COPYRIGHT:
 
-    (c) 2007-2012, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2012, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -30,6 +30,8 @@
 */
 #include "laswriter_wrl.hpp"
 
+#include "lasmessage.hpp"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,15 +40,15 @@ BOOL LASwriterWRL::open(const CHAR* file_name, const LASheader* header, const CH
 {
   if (file_name == 0)
   {
-    fprintf(stderr,"ERROR: file name pointer is zero\n");
+    laserror("file name pointer is zero");
     return FALSE;
   }
 
-  file = fopen(file_name, "w");
+  file = LASfopen(file_name, "w");
 
   if (file == 0)
   {
-    fprintf(stderr, "ERROR: cannot open file '%s'\n", file_name);
+    laserror("cannot open file '%s'", file_name);
     return FALSE;
   }
 
@@ -59,7 +61,7 @@ BOOL LASwriterWRL::open(FILE* file, const LASheader* header, const CHAR* parse_s
 {
   if (file == 0)
   {
-    fprintf(stderr,"ERROR: file pointer is zero\n");
+    laserror("file pointer is zero");
     return FALSE;
   }
 
@@ -80,7 +82,7 @@ BOOL LASwriterWRL::open(FILE* file, const LASheader* header, const CHAR* parse_s
       }
       else
       {
-        fprintf(stderr,"WARNING: points do not have RGB colors\n");
+        LASMessage(LAS_WARNING, "points do not have RGB colors");
         if (rgb)
         {
           rgb_alloc = 0;
@@ -169,7 +171,7 @@ BOOL LASwriterWRL::write_point(const LASpoint* point)
     if (p_count == rgb_alloc)
     {
       rgb_alloc *= 2;
-      rgb = (U8*)realloc(rgb, 3*sizeof(U8)*rgb_alloc);
+      rgb = (U8*)realloc_las(rgb, 3*sizeof(U8)*rgb_alloc);
     }
     if (point->rgb[0] > 255)
       rgb[3*p_count+0] = U8_CLAMP(point->rgb[0]/256);
@@ -239,6 +241,7 @@ LASwriterWRL::LASwriterWRL()
   file = 0;
   rgb = 0;
   rgb_alloc = 0;
+  header = nullptr;
 }
 
 LASwriterWRL::~LASwriterWRL()

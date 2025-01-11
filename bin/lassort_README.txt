@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lassort:
 
@@ -39,7 +41,7 @@
   or in a point source ID order (or first sort by point source
   IDs and then by time).
 
-  Please license from martin.isenburg@rapidlasso.com to use lassort
+  Please license from info@rapidlasso.de to use lassort
   commercially.
 
   For updates check the website or join the LAStools mailing list.
@@ -349,7 +351,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 180209 (academic)
+LAStools (by info@rapidlasso.de) version 180209 (academic)
 usage:
 lassort -i in.laz -o out.laz
 lassort -i in.las -gps_time -o out.laz
@@ -366,4 +368,4 @@ lassort -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

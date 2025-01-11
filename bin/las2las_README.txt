@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   las2las:
 
@@ -36,16 +38,12 @@
   of classification 2 or 3 and the option -drop_class 2 3 will drop
   only those points. For all options run 'las2las -h'.
  
-  For updates check the website or join the LAStools mailing list.
-
-  http://rapidlasso.com/LAStools
-  http://lastools.org/
+  For updates check the website or join the LAStools google group.
+  
+  https://rapidlasso.de/
   http://groups.google.com/group/lastools/
-  http://twitter.com/LAStools
-  http://facebook.com/LAStools
-  http://linkedin.com/groups?gid=4408378
 
-  Martin @rapidlasso
+  Jochen @rapidlasso
 
 ****************************************************************
 
@@ -188,6 +186,30 @@ of in.las that have point.Z<1000 or point.Z>4000 and stores all
 surviving points to out.las (use lasinfo.exe to see the range of
 point.Z).
 
+Available options for using the PROJ library for transformations between 
+Coordinate Reference Systems (CRSs). Specifying the source CRS is optional 
+for all commands. If no source CRS is specified, the tool will attempt to extract this 
+information from the header of the input file in.las, which is recommended.
+There is a hierarchy for determining the source CRS for the PROJ transformation:
+1. the source CRS is passed as an argument.
+2. if not, the WKT is searched for in the header of the source file.
+3. if no WKT is available, it is generated from the GeoTIFF data.
+4. if this is not possible, the EPSG code from the GeoTIFF is used, which can lead to inaccuracies as GeoTIFF arguments could be ignored.
+
+Files with CompoundCRS are not yet supported for transformations using PROJ in LAStools.
+The recommended methods for specifying CRSs are the use of EPSG codes or 
+WKT representations, as these adhere to well-defined standards:
+ 
+>> las2las64 -i in.las -o out.las -proj_epsg 32633 4326
+>> las2las64 -i in.las -o out.las -proj_wkt filename_source_wkt filename_target_wkt
+
+The methods using the json representation or the PROJ string are only recommended 
+for advanced and experienced users. When using the PROJ string, a single PROJ string 
+can also be used directly to describe the transformation or operation.
+
+>> las2las64 -i in.las -o out.las -proj_json filename_source_json filename_target_json
+>> las2las64 -i in.las -o out.las -proj_string "proj_string_source" "proj_string_target"
+
 other commandline arguments are
 
 -auto_reoffset                 : puts a reasonable offset in the header and translates the points accordingly
@@ -220,18 +242,22 @@ other commandline arguments are
 -remove_evlrs_from_to 0 2      : remove the first three EVLRs
 -remove_tiling_vlr             : removes VLR containing tiling information created by lastile
 -remove_original_vlr           : removes VLR containing original header information created by on-the-fly buffering
+-add_empty_vlr uid rid desc    : add an empty VLR with given user-id(text), record-id(int) and description(text)  
 -add_attribute 0 "hello" "sample attribute" 1.0 0.0 : adds a new attribute of type 0 (unsigned byte) as "extra bytes"
 -unset_attribute_scale 0       : unsets the scale of the *first* attribute in the extra bytes
 -unset_attribute_offset 1      : unsets the offset of the *second* attribute in the extra bytes
 -move_evlrs_to_vlrs            : move all EVLRs with small enough payload to VLR section
 -save_vlrs                     : saves all VLRs to a file called vlrs.vlr so they can be loaded into another file
+-save_vlr 0 LASF_Projection 34735 sample.vlr : saves a single VLR specified by index (default = 0) or user ID and record ID to the file (default: save.vlr) so it can be loaded into another file header
 -load_vlrs                     : loads all VLRs from a file called vlrs.vlr and adds them to each processed file
+-load_vlr 0 LASF_Projection 34735 sample.vlr : loads a single VLR specified by index (default = 0) or user ID and record ID from the file (default: save.vlr) and adds it to each processed file header
 -dont_remove_empty_files       : does not remove files that have zero points remaining from disk
 -clip_to_bounding_box          : kicks out all points not inside the bounding box specified by the LAS header
 -week_to_adjusted              : converts time stamps from GPS week to Adjusted Standard GPS 
 -adjusted_to_week              : converts time stamps from Adjusted Standard GPS to GPS week
 -scale_rgb_up                  : multiplies all RGB values by 256 (to go from 8 bit to 16 bit numbers)
 -scale_rgb_down                : divides all RGB values by 256 (to go from 16 bit to 8 bit numbers)
+-force_RGB                     : force the use of the RGB value even if the point format does not support RGB
 -wgs84                         : use datum WGS-84
 -grs80                         : use datum GRS1980
 -wgs72                         : use datum WGS-72
@@ -276,13 +302,17 @@ other commandline arguments are
 -tm 1804461.942257 0.0 feet 0.8203047 -2.1089395 0.99996
 -lcc 609601.22 0.0 meter 33.75 -79 34.33333 36.16666      : specifies a lambertian conic confomal projection
 -lcc 1640416.666667 0.0 surveyfeet 47.000000 -120.833333 47.50 48.733333
--ellipsoid 23                                             : use ellipsoid WGS-84 (specify '-ellipsoid -1' for a list)
+-ellipsoid 23                    : use ellipsoid WGS-84 (specify '-ellipsoid -1' for a list)
+-proj_epsg 32633 4326     	 : (Recommended) uses the PROJ lib to perform a CRS transformation. Optionally, the source CRS can be specified using EPSG code (deafult from the input file header). In addition, the target CRS must be specified using EPSG code 
+-proj_wkt filename_source_wkt filename_target_wkt : (Recommended) uses the PROJ lib to perform a CRS transformation. Optionally, the source CRS can be specified by using a file with the WKR representation of the CRS (deafult from the input file header). In addition, the target CRS must be specified using a file with the WKR representation of the CRS
+-proj_string "proj_string_source" "proj_string_target" : (For experienced users) uses the PROJ lib to perform a CRS transformation. Optionally, the source CRS can be specified using PRO string (deafult from the input file header). In addition, the target CRS must be specified using PROJ string. Furthermore a single PROJ string can also be specified, which directly describes a transformation or operation
+-proj_json filename_source_json filename_target_json : (For experienced users) uses the PROJ lib to perform a CRS transformation. Optionally, the source CRS can be specified by using a file with the PROJJSON representation of the CRS (deafult from the input file header). In addition, the target CRS must be specified using a file with the PROJJSON representation of the CRS
 
 for more info:
 
 C:\software\LAStools\bin>las2las -h
-Filter points based on their coordinates.
-  -keep_tile 631000 4834000 1000 (ll_x ll_y size)
+Filter points based on their *scaled* coordinates.
+  -keep_tile 631000 4834000 1000 (lowerleft_x lowerleft_y size)
   -keep_circle 630250.00 4834750.00 100 (x y radius)
   -keep_xy 630000 4834000 631000 4836000 (min_x min_y max_x max_y)
   -drop_xy 630000 4834000 631000 4836000 (min_x min_y max_x max_y)
@@ -491,6 +521,7 @@ Transform RGB/NIR colors.
   -copy_intensity_into_NIR
   -switch_RGBI_into_CIR
   -switch_RGB_intensity_into_CIR
+  -force_RGB
 Transform attributes in "Extra Bytes".
   -scale_attribute 0 1.5
   -translate_attribute 1 0.2
@@ -525,10 +556,10 @@ Supported LAS Outputs
   -odir C:\data\ground (specify output directory)
   -odix _classified (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-  -olas -olaz -otxt -obin -oqfit (specify format)
+  -olas -olaz -otxt -obin -oqfit -optx -opts (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 190711
+LAStools (by info@rapidlasso.de) version 190711
 usage:
 las2las -i *.las -utm 13N
 las2las -i *.laz -first_only -olaz
@@ -549,4 +580,4 @@ las2las -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.

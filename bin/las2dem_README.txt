@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   las2dem:
 
@@ -58,7 +60,7 @@
   It is also possible to provide the georeferencing information
   in the command-line.
 
-  Please license from martin.isenburg@rapidlasso.com to use las2dem
+  Please license from info@rapidlasso.de to use las2dem
   commercially.
 
   For updates check the website or join the LAStools mailing list.
@@ -176,6 +178,7 @@ other commandline arguments are
 -ncols 512            : raster at most 512 columns
 -ll 300000 600000     : start rastering at these lower left x and y coordinates
 -nodata -9999         : use -9999 as the nodata value in the BIL/ASC format
+-grid_center          : aligns the grid's origin to the center of a cell instead of its corner
 -hillshade            : color the image with hillside shading
 -intensity            : use intensity values
 -rgb                  : use rgb values if available (only used with PNG/TIF/JPG)
@@ -369,7 +372,7 @@ Supported Raster Outputs
   -odir C:\data\hillshade (specify output directory)
   -odix _small (specify file name appendix)
   -ocut 2 (cut the last two characters from name)
-LAStools (by martin@rapidlasso.com) version 140301 (unlicensed)
+LAStools (by info@rapidlasso.de) version 140301 (unlicensed)
 usage:
 las2dem -i lidar.las -o lidar.asc
 las2dem -i lidar.las -o lidar.bil -intensity -kill 50
@@ -383,7 +386,7 @@ las2dem -h
 
 ---------------
 
-if you find bugs let me (martin.isenburg@rapidlasso.com) know
+if you find bugs let me (info@rapidlasso.de) know
 
 ---------------
 

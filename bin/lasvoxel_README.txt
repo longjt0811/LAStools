@@ -1,4 +1,6 @@
 ****************************************************************
+this file is deprecated - see *.md version of this file
+****************************************************************
 
   lasvoxel:
 
@@ -18,7 +20,7 @@
   report all empty voxels that fall within the 3D bounding box but
   give them an intensity value of zero.
 
-  Please license from martin@rapidlasso.com before using lasvoxel
+  Please license from info@rapidlasso.de before using lasvoxel
   commercially. Please note that the unlicensed version will set
   intensity, gps_time, user data, and point source ID to zero,
   slightly change the LAS point order, and randomly add a tiny
@@ -27,7 +29,7 @@
 
   For updates check the website or join the LAStools mailing list.
 
-  http://rapidlasso.com/
+  https://rapidlasso.de/
   http://lastools.org/
   http://groups.google.com/group/lastools/
   http://twitter.com/lastools/
@@ -40,11 +42,7 @@
 
 example usage:
 
->> lasvoxel -v ^
-            -i ..\data\france.laz ^
-            -i ..\data\fusa.laz ^
-            -step 1 ^
-            -odix _mist -olaz
+lasvoxel -v -i ..\data\france.laz -i ..\data\fusa.laz -step 1 -odix _mist -olaz
 
 voxelizing 101206 points with step_xy 1 units and step_z 1 units ...
 took 0.063 sec. created 15 vertical layers. outputting ...
@@ -55,15 +53,11 @@ done with '..\data\fusa_mist.laz'. took 0.241 sec.
 done with all files. total time for 2 files 0.319 sec.
 
 
->> lastile -i shitloadoflidar.laz ^
-           -tile_size 10 ^
-           -odir tiles -o small.laz
+lastile -i shitloadoflidar.laz -tile_size 10 -odir tiles -o small.laz
 
->> lasvoxel -i tiles/small*.laz ^
-            -odir result -olaz
+lasvoxel -i tiles/small*.laz -odir result -olaz
 
->> lasmerge -i result/small*.laz ^
-            -o big_result.laz
+lasmerge -i result/small*.laz -o big_result.laz
 
 the above workflow is for larger areas and/or tiny voxels sizes
 
@@ -82,7 +76,7 @@ overview of all tool-specific switches:
 -step 1.0                            : use 1 x 1 x 1 uniform grid for finding isolated points
 -step_xy 2.0                         : set the horizontal x and y spacing of the grid to 2
 -step_z 0.5                          : set the vertical z spacing of the grid to 0.5
--step_z_infinite                     : sets the vertical z spacing to infinite (-> one layer of voxels)
+-step_z_infinite                     : sets the vertical z spacing to infinite (one layer of voxels)
 -compute_mean_xyz                    : compute averaged coordinate for output voxels
 -empty_voxels                        : also output voxels without returns but give them intensity of zero
 -compute_IDs_and_voxel_table         : https://groups.google.com/d/topic/lastools/Nc-rN5OuxY8/discussion
@@ -347,7 +341,7 @@ Supported LAS Outputs
   -olas -olaz -otxt -obin -oqfit (specify format)
   -stdout (pipe to stdout)
   -nil    (pipe to NULL)
-LAStools (by martin@rapidlasso.com) version 190812 (commercial)
+LAStools (by info@rapidlasso.de) version 190812 (commercial)
 usage:
 lasvoxel -i in.laz -o out.laz
 lasvoxel -i in.laz -step 2 -o out.laz
@@ -359,4 +353,4 @@ lasvoxel -i in.laz -step 2.5 -compute_IDs_and_voxel_table -store_IDs_in_intensit
 lasvoxel -h
 
 -------------
-if you find bugs let me (martin@rapidlasso.com) know.
+if you find bugs let me (info@rapidlasso.de) know.
